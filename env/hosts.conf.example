@@ -1,0 +1,13 @@
+# SSH-Ziele für env/gt.sh — nach env/hosts.conf kopieren und ausfüllen.
+# hosts.conf ist per .gitignore ausgeschlossen und bleibt lokal.
+#
+# Trag hier am besten Aliase aus ~/.ssh/config ein, keine IP-Adressen:
+# der Alias hält User, Port und Key an einer Stelle zusammen, und wenn
+# sich eine Adresse ändert, gibt es genau eine Datei zum Nachziehen.
+#
+#   Host hermes
+#     HostName <adresse>
+#     User <benutzer>
+
+HERMES_HOST=hermes
+NAS_HOST=ugreen

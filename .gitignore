@@ -1,0 +1,9 @@
+.DS_Store
+
+# Lokale Ziele — gehören nicht ins Repo
+env/hosts.conf
+
+# Maschinenzustand, kein Quelltext
+macos/symbolichotkeys-backup.plist
+*.backup-*
+*.autosave-*

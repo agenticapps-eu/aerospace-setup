@@ -1,0 +1,64 @@
+# ══════════════════════════════════════════════════════════════════════
+# Ghostty — auf AeroSpace abgestimmt
+#
+# Liegt als Symlink unter ~/.config/ghostty/config (install.sh).
+# ══════════════════════════════════════════════════════════════════════
+
+# ── TABS ABGESCHALTET ─────────────────────────────────────────────────
+# Warum: Ghostty benutzt auf macOS NATIVE Tabs, und native Tabs sind in
+# Wirklichkeit einzelne NSWindows, die macOS zu einer Gruppe bündelt.
+# AeroSpace kachelt einzelne Mitglieder dieser Gruppe — macOS reisst sie
+# dabei aus der Gruppe heraus. Beobachtet: beim Klick auf einen Tab tauchte
+# scheinbar ein neues Fenster auf, Gruppen verschmolzen unkontrolliert, und
+# es sammelten sich neun Fenster an.
+#
+# Ein Fenster pro Zweck, umgeschaltet wird mit AeroSpace
+# (alt-1..7 für Workspaces, alt-←/→ für Fenster im Workspace).
+#
+# `unbind` entfernt die Zuordnung vollständig, `ignore` würde die Taste
+# schlucken. unbind ist richtig: cmd-1..9 fällt damit an AeroSpace bzw.
+# an die App zurück, statt ins Leere zu laufen.
+
+# Neuen Tab anlegen
+keybind = super+t=unbind
+
+# Tab schliessen
+keybind = super+alt+w=unbind
+
+# Direkt zu Tab n
+keybind = super+1=unbind
+keybind = super+2=unbind
+keybind = super+3=unbind
+keybind = super+4=unbind
+keybind = super+5=unbind
+keybind = super+6=unbind
+keybind = super+7=unbind
+keybind = super+8=unbind
+keybind = super+9=unbind
+keybind = super+digit_1=unbind
+keybind = super+digit_2=unbind
+keybind = super+digit_3=unbind
+keybind = super+digit_4=unbind
+keybind = super+digit_5=unbind
+keybind = super+digit_6=unbind
+keybind = super+digit_7=unbind
+keybind = super+digit_8=unbind
+
+# Zwischen Tabs blättern
+keybind = super+shift+[=unbind
+keybind = super+shift+]=unbind
+keybind = ctrl+tab=unbind
+keybind = ctrl+shift+tab=unbind
+
+# ── Was BEWUSST bleibt ────────────────────────────────────────────────
+# cmd-N (new_window) bleibt: neue Fenster sind ausdrücklich erwünscht,
+# AeroSpace kachelt sie im gerade aktiven Workspace.
+# Splits bleiben auch: die leben INNERHALB eines Fensters, AeroSpace
+# sieht davon nichts und stört sie nicht.
+
+# ── Hinweis, den die Config nicht abdecken kann ───────────────────────
+# Das Menü "Shell → New Tab" bleibt anklickbar — Ghostty kennt keinen
+# Schalter, der Tabs komplett entfernt. Ergänzend ist systemweit gesetzt:
+#   defaults write -g AppleWindowTabbingMode -string manual
+# Damit klebt macOS neue Fenster nicht mehr automatisch als Tab an ein
+# bestehendes. Zurücknehmen: defaults delete -g AppleWindowTabbingMode

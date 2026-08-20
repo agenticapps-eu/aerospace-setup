@@ -1,0 +1,365 @@
+# ═══════════════════════════════════════════════════════════════════════
+# AeroSpace — Donald
+#
+# LG ULTRAWIDE 3440×1440  (oben)        → Workspace 1, und nur 1
+# Odyssey G93SC 5120×1440 (unten, Main) → Workspace 2 · 3 · 4 · 5 · 6 · 7
+#
+#   1 DEV            Ghostty (herdr) │ Obsidian          ← LG, fest
+#   2 DISCOVER       Zen │ Claude │ Raindrop ⁄ Reader
+#   3 WORK           Dia │ Slack  │ Google Meet
+#   4 COMMUNICATION  WhatsApp │ Fastmail                 (+ Teams on demand)
+#   5 REMOTE         Ghostty: herdr hermes │ herdr homelab (NAS)
+#   6 TOOLS          Ghostty Terminal │ Chrome   (+ btop, superfile,
+#                    iA Writer, CotEditor on demand)
+#   7 PRODUCTIVITY   ForkLift │ Superlist       ← selten, deshalb hinten
+#
+# WARUM der LG nur EINEN Workspace hat:
+# AeroSpace parkt Fenster unsichtbarer Workspaces in einer unteren Ecke
+# ihres Monitors. Unter dem LG liegt echter Bildschirm (der Odyssey), also
+# wurden geparkte LG-Fenster dort sichtbar — gemessen: 896 px breiter
+# Streifen. Der untere Monitor hat das Problem nie, weil unter ihm nichts
+# ist. Mit nur einem Workspace auf dem LG ist dort nie etwas versteckt,
+# und das Problem existiert nicht mehr. Deshalb liegt alles Umschaltbare
+# unten auf dem Odyssey.
+#
+# Liegt als Symlink unter ~/.config/aerospace/aerospace.toml (install.sh)
+# ═══════════════════════════════════════════════════════════════════════
+
+config-version = 2
+
+start-at-login = true
+
+# Config wird beim Speichern automatisch neu geladen (seit v0.21.0).
+# Einmal manuell mit alt-shift-; esc neu laden, dann greift es.
+auto-reload-config = true
+
+# Farbiger Rahmen ums fokussierte Fenster. JankyBorders v1.9.0 ist bei dir
+# schon installiert (stand auch in deiner alten Config vom Dezember).
+# borders erkennt selbst, ob es schon läuft — kein doppelter Start.
+after-startup-command = [
+  'exec-and-forget borders active_color=0xff7dd3fc inactive_color=0x00000000 width=6.0',
+]
+
+# ── Tiling-Grundverhalten ──────────────────────────────────────────────
+# Auf Ultrawides ist horizontal immer richtig: neue Fenster reihen sich
+# nebeneinander ein, nicht übereinander.
+default-root-container-layout      = 'tiles'
+default-root-container-orientation = 'horizontal'
+
+# Erste Zeile räumt verschachtelte 1-Kind-Container auf.
+# Zweite Zeile ist der Grund, warum die geteilte dritte Spalte auf
+# Workspace 2 funktioniert: ein Container innerhalb eines horizontalen
+# Roots wird automatisch vertikal.
+enable-normalization-flatten-containers = true
+enable-normalization-opposite-orientation-for-nested-containers = true
+
+accordion-padding = 40
+
+# ── Maus und Fokus müssen PAARWEISE konfiguriert werden ────────────────
+# Mit focus-follows-mouse allein passiert Folgendes: du springst per
+# Tastatur in ein anderes Fenster, die Maus bleibt aber liegen wo sie war
+# — und zieht den Fokus sofort dorthin zurück. Das Gegenstück ist dieser
+# Callback: bei jedem Fokuswechsel wandert der Cursor in die Mitte des
+# neuen Fensters.
+#
+# "lazy" heisst: nur bewegen, wenn der Cursor nicht schon im Fenster ist.
+# Damit ruckelt die Maus nicht bei jedem Klick innerhalb desselben
+# Fensters herum.
+on-focus-changed = ['move-mouse window-lazy-center']
+
+# Dasselbe auf Monitorebene, als Netz für den Fall, dass kein Fenster
+# fokussiert ist (window-lazy-center scheitert dann).
+on-focused-monitor-changed = ['move-mouse monitor-lazy-center']
+
+# AutoRaise-Ersatz: Fokus folgt der Maus. Seit 17.08.2026 aktiv.
+#
+# Unterschied zu deinem alten AutoRaise: AeroSpace hat KEINE Verzögerung.
+# Dein AutoRaise lief mit -delay 6 (≈300 ms Hover, bevor es umschaltet).
+# Hier schaltet es sofort. Bei gestapelten Monitoren heisst das: fährt der
+# Cursor über die Kante zwischen LG und Odyssey, wandert der Fokus mit.
+# Wenn dich das nervt, hier auf false — Speichern genügt.
+focus-follows-mouse.enabled = true
+
+# Apps, die macOS versteckt hat (cmd-h), wieder einblenden statt ignorieren.
+automatically-unhide-macos-hidden-apps = true
+
+key-mapping.preset = 'qwerty'
+
+# Workspaces bleiben bestehen, auch wenn leer — sonst klappt ein leerer
+# Workspace von seinem Monitor weg.
+persistent-workspaces = ['1', '2', '3', '4', '5', '6', '7']
+
+# ── Gaps ───────────────────────────────────────────────────────────────
+# Gaps kosten fast nichts: bei 3 Fenstern auf dem Odyssey (5120 px)
+# frisst 16 statt 8 px nur ~11 px Breite pro Fenster — 0,6 %.
+# Der breitere Monitor bekommt grössere Gaps, damit sie auf beiden
+# Panels optisch gleich wirken.
+gaps.inner.horizontal = [{ monitor."odyssey" = 16 }, { monitor."lg" = 12 }, 12]
+gaps.inner.vertical   = [{ monitor."odyssey" = 16 }, { monitor."lg" = 12 }, 12]
+gaps.outer.left       = [{ monitor."odyssey" = 16 }, { monitor."lg" = 12 }, 12]
+gaps.outer.right      = [{ monitor."odyssey" = 16 }, { monitor."lg" = 12 }, 12]
+gaps.outer.top        = [{ monitor."odyssey" = 16 }, { monitor."lg" = 12 }, 12]
+gaps.outer.bottom     = [{ monitor."odyssey" = 16 }, { monitor."lg" = 12 }, 12]
+# Zu luftig? alle auf 8. Noch luftiger? 24 / 20.
+
+# ═══════════════════════════════════════════════════════════════════════
+# STANDARD-PLATZIERUNG
+# ═══════════════════════════════════════════════════════════════════════
+# Die erste passende Regel gewinnt — Reihenfolge zählt.
+# Regeln mit `&&` müssen VOR der allgemeinen Regel derselben App stehen.
+on-window-detected = [
+
+  # ── Immer floaten: Dialoge, Utilities, Passwortmanager ──────────────
+  { if = 'test %{app-bundle-id} = com.1password.1password',     run = 'layout floating' },
+  { if = 'test %{app-bundle-id} = com.apple.systempreferences', run = 'layout floating' },
+  { if = 'test %{app-bundle-id} = pl.maketheweb.cleanshotx',    run = 'layout floating' },
+  { if = 'test %{app-bundle-id} = com.goodsnooze.MacWhisper',   run = 'layout floating' },
+  { if = 'test %{app-bundle-id} = com.apple.finder',            run = 'layout floating' },
+  { if = 'test %{app-bundle-id} = com.apple.Preview',           run = 'layout floating' },
+  { if = 'test %{app-bundle-id} = com.macpaw.CleanMyMac5',      run = 'layout floating' },
+  { if = 'test %{app-bundle-id} = com.elgato.StreamDeck',       run = 'layout floating' },
+  { if = 'test %{app-bundle-id} = com.manytricks.Moom',         run = 'layout floating' },
+  { if = 'test %{app-bundle-id} = com.macility.typinator2',     run = 'layout floating' },
+  { if = 'test %{app-bundle-id} = com.kagi.kagimacOS',          run = 'layout floating' },   # Orion
+
+  # ── Installer, Updater, Modale ───────────────────────────────────────
+  # AeroSpace erkennt die meisten davon schon selbst als Dialog und
+  # floatet sie (Fenster ohne Vollbild-Button gelten als Dialog). Hier
+  # nur, was die Heuristik erfahrungsgemäss übersieht.
+  { if = 'test %{app-bundle-id} = com.apple.installer',       run = 'layout floating' },
+  { if = 'test %{app-bundle-id} = com.apple.SoftwareUpdate',  run = 'layout floating' },
+  # Sparkle-Updater laufen im Prozess der App selbst, sind also nicht über
+  # die Bundle-ID zu treffen. Deshalb ein ANGEKERTES Titelmuster: es muss
+  # der ganze Titel passen, sonst würde ein Browserfenster namens
+  # "Update your profile — Chrome" mitfloaten.
+  { if = "test %{window-title} ~= '^(Installer|Setup|Software.?Update|Updating.*)$'",
+    run = 'layout floating' },
+
+  # ── Grafik & Medien: brauchen Canvas + freie Paletten ───────────────
+  { if = 'test %{app-bundle-id} = com.pixelmatorteam.pixelmator.x',             run = 'layout floating' },
+  { if = 'test %{app-bundle-id} = com.pixelmatorteam.pixelmator.touch.x.photo', run = 'layout floating' },
+  { if = 'test %{app-bundle-id} = com.canva.affinity',          run = 'layout floating' },
+  { if = 'test %{app-bundle-id} = com.colliderli.iina',         run = 'layout floating' },
+  { if = 'test %{app-bundle-id} = com.firecore.infuse',         run = 'layout floating' },
+  { if = 'test %{app-bundle-id} = com.charliemonroe.Permute-3',  run = 'layout floating' },
+  { if = 'test %{app-bundle-id} = com.edovia.screens.5',        run = 'layout floating' },
+  { if = 'test %{app-bundle-id} = com.apple.iWork.Keynote',     run = 'layout floating' },
+
+  # ── 1 · DEV (LG) ────────────────────────────────────────────────────
+  # BEWUSST KEINE Ghostty-Regel. Alle Ghostty-Fenster teilen dieselbe
+  # Bundle-ID, eine Regel könnte sie also nicht unterscheiden — und sie
+  # lief in eine Race Condition gegen die Skripte: die Regel schob jedes
+  # neue Fenster nach 1, während das Skript es woandershin schob. Je nach
+  # Reihenfolge gewann die Regel, und alles landete auf 1.
+  #
+  # Stattdessen fokussieren die Skripte den Zielworkspace VOR dem
+  # Erzeugen — neue Fenster entstehen dort, wo der Fokus ist.
+  # Von Hand geöffnete Ghostty-Fenster (cmd-N) landen deshalb im gerade
+  # aktiven Workspace. Mit alt-shift-<n> weiterschieben.
+  { if = 'test %{app-bundle-id} = md.obsidian',                 run = 'move-node-to-workspace 1' },
+
+  # ── 2 · DISCOVER (Odyssey) ──────────────────────────────────────────
+  { if = 'test %{app-bundle-id} = app.zen-browser.zen',         run = 'move-node-to-workspace 2' },
+  { if = 'test %{app-bundle-id} = com.anthropic.claudefordesktop', run = 'move-node-to-workspace 2' },
+  { if = 'test %{app-bundle-id} = io.raindrop.macapp',          run = 'move-node-to-workspace 2' },
+  { if = 'test %{app-bundle-id} = io.readwise.read',            run = 'move-node-to-workspace 2' },
+
+  # ── 7 · PRODUCTIVITY (Odyssey) — selten, deshalb hinten ─────────────
+  { if = 'test %{app-bundle-id} = com.binarynights.ForkLift',   run = 'move-node-to-workspace 7' },
+  { if = 'test %{app-bundle-id} = com.superlist.superlist',     run = 'move-node-to-workspace 7' },
+
+  # ── 4 · COMMUNICATION (Odyssey) ─────────────────────────────────────
+  { if = 'test %{app-bundle-id} = net.whatsapp.WhatsApp',       run = 'move-node-to-workspace 4' },
+  { if = 'test %{app-bundle-id} = com.fastmail.mac.Fastmail',   run = 'move-node-to-workspace 4' },
+
+  # ── Teams: Hauptfenster gekachelt, Meeting-Popups floatend ─────────
+  # Verifiziert (aerospace test gegen ein Fenster mit bekanntem Titel):
+  # die Regex-Engine kann Anker — 'Claude$' trifft, '^Claude$' trifft,
+  # test-not arbeitet korrekt. Die Logik ist also belastbar.
+  #
+  # Verifiziert am echten Fenster: das Hauptfenster heisst
+  # "Calendar | (Extern) | Microsoft Teams" — der Abschnittsname steht
+  # VORNE. Danach wird unterschieden, nicht am Suffix: ein Meeting-Fenster
+  # endet nämlich sehr wahrscheinlich AUCH auf "Microsoft Teams", weshalb
+  # mein erster Versuch mit `test-not ... ~= 'Microsoft Teams$'` das
+  # Meeting-Fenster nicht erwischt hat.
+  #
+  # NOCH NICHT VERIFIZIERT: der Titel eines laufenden Meeting-Fensters.
+  # Beim nächsten Termin einmal laufen lassen und mir sagen, was rauskommt:
+  #   aerospace list-windows --monitor all --app-bundle-id com.microsoft.teams2 --format '%{window-title}'
+  #
+  # 1) Bekannte Hauptfenster-Ansichten → gekachelt auf 4
+  { if = "test %{app-bundle-id} = com.microsoft.teams2 && test %{window-title} ~= '^(Activity|Chat|Teams|Calendar|Calls|Files|Apps|Aktivität|Chats|Kalender|Anrufe|Dateien)'",
+    run = 'move-node-to-workspace 4' },
+  # 2) Alles andere von Teams → floatend auf 4. Das sind die Popups, die
+  #    bei Meeting-Beginn aufgehen. Unbekanntes floatet lieber, als das
+  #    Layout zu sprengen.
+  { if = 'test %{app-bundle-id} = com.microsoft.teams2',
+    run = ['layout floating', 'move-node-to-workspace 4'] },
+
+  # ── 3 · WORK (Odyssey) ──────────────────────────────────────────────
+  { if = 'test %{app-bundle-id} = company.thebrowser.dia',      run = 'move-node-to-workspace 3' },
+  { if = 'test %{app-bundle-id} = com.tinyspeck.slackmacgap',   run = 'move-node-to-workspace 3' },
+
+  # ── Google Meet ist eine Chrome-PWA ────────────────────────────────
+  # Verifiziert: Meet meldet sich als com.google.Chrome, nicht als eigene
+  # App. Unterschieden wird deshalb am Titel — aber nur mit `=`
+  # (exakte Gleichheit), nicht mit Regex. Die Regex-Variante
+  # (`test-not ... ~= 'Google Chrome$'`) hat vorher jedes normale
+  # Chrome-Fenster als PWA eingeordnet und floatend über Dia und Slack
+  # gelegt. Genau das war die Überlagerung auf Workspace 5.
+  #
+  # Meet im Ruhezustand heisst exakt "Google Meet" → gekachelt auf 5.
+  { if = "test %{app-bundle-id} = com.google.Chrome && test %{window-title} = 'Google Meet'",
+    run = 'move-node-to-workspace 3' },
+
+  # Zoom: floatend auf 5, Meeting-Fenster kacheln nie sinnvoll.
+  { if = 'test %{app-bundle-id} = us.zoom.xos', run = ['layout floating', 'move-node-to-workspace 3'] },
+
+  # ── 6 · TOOLS · 5 · REMOTE (Odyssey) ────────────────────────────────
+  # Ghostty-Fenster werden von den Skripten per --window-id gesetzt, nicht
+  # über Regeln — alle teilen com.mitchellh.ghostty. Die Ghostty-Regel
+  # oben (→ 1) ist nur der Ruhezustand für von Hand geöffnete Fenster.
+  # Alles andere Chrome → 6, neben dem Terminal.
+  # Achtung: wechselt Meet im Anruf den Titel, landet es auch auf 7.
+  # Dann mit alt-shift-5 zurückschieben.
+  { if = 'test %{app-bundle-id} = com.google.Chrome',           run = 'move-node-to-workspace 6' },
+  { if = 'test %{app-bundle-id} = pro.writer.mac',              run = 'move-node-to-workspace 6' },
+  { if = 'test %{app-bundle-id} = com.coteditor.CotEditor',     run = 'move-node-to-workspace 6' },
+]
+
+# ═══════════════════════════════════════════════════════════════════════
+# MONITOR-ZUORDNUNG
+# ═══════════════════════════════════════════════════════════════════════
+# Monitor-Pattern = case-insensitive Regex auf den Monitornamen.
+# Bewusst keine Nummern: AeroSpace numeriert von links nach rechts, was
+# bei gestapelten Monitoren ambig ist und sich beim Verschieben in
+# "Anordnen…" ändert. Namen sind stabil.
+[workspace-to-monitor-force-assignment]
+1 = 'lg'
+2 = 'odyssey'
+3 = 'odyssey'
+4 = 'odyssey'
+5 = 'odyssey'
+6 = 'odyssey'
+7 = 'odyssey'
+
+# ═══════════════════════════════════════════════════════════════════════
+# KEYBINDINGS
+# ═══════════════════════════════════════════════════════════════════════
+[mode.main.binding]
+
+  # ── Layout ────────────────────────────────────────────────────────────
+  alt-slash   = 'layout tiles horizontal vertical'
+  alt-comma   = 'layout accordion horizontal vertical'
+  alt-f       = 'fullscreen'
+  alt-shift-f = 'layout floating tiling'
+  alt-b       = 'balance-sizes'
+
+  # Spalte vertikal teilen / zusammenfassen — baut die geteilte dritte
+  # Spalte auf Workspace 4 von Hand nach.
+  alt-shift-minus = 'join-with left'
+  alt-shift-equal = 'join-with right'
+
+  # ═══ EBENE 1 · ctrl + Pfeil = WORKSPACE / DISPLAY ══════════════════════
+  # Genau die Bedeutung, die Mission Control vorher hatte:
+  #   links/rechts = Space wechseln  →  jetzt Workspace wechseln
+  #   hoch/runter  = Monitor wechseln (oben LG, unten Odyssey)
+  #
+  # VORAUSSETZUNG: die Mission-Control-Kürzel müssen abgeschaltet sein,
+  # sonst gewinnt macOS und AeroSpace sieht die Tasten nie:
+  #   ~/.config/aerospace/macos/mission-control-keys.sh off
+  #
+  # `workspace prev/next` blättert nur die Workspaces des Monitors, auf
+  # dem du gerade bist — 1→2→3 oben, 4→5→6 unten.
+  ctrl-left  = 'workspace --wrap-around prev'
+  ctrl-right = 'workspace --wrap-around next'
+
+  # Monitor per NAME, nicht per Richtung. `focus-monitor up` war falsch
+  # herum: AeroSpace rechnet Richtungen in einem Koordinatensystem, in dem
+  # y nach unten wächst. Seit der Odyssey Hauptbildschirm ist, liegt der
+  # LG bei y=1440 und gilt damit intern als "unten" — ctrl-↑ führte
+  # deshalb nach unten. Mit Mustern ist die Richtung eindeutig, egal
+  # welcher Monitor Main ist oder wie die Origins liegen.
+  ctrl-up    = 'focus-monitor lg'
+  ctrl-down  = 'focus-monitor odyssey'
+
+  # Mit shift: das Fenster mitnehmen statt nur hinschauen.
+  ctrl-shift-left  = 'move-node-to-workspace --wrap-around prev --focus-follows-window'
+  ctrl-shift-right = 'move-node-to-workspace --wrap-around next --focus-follows-window'
+  ctrl-shift-up    = 'move-node-to-monitor lg --focus-follows-window'
+  ctrl-shift-down  = 'move-node-to-monitor odyssey --focus-follows-window'
+
+  # ═══ EBENE 2 · alt + Pfeil = FENSTER IM WORKSPACE ══════════════════════
+  # Zwischen den Apps innerhalb eines Workspace springen.
+  #
+  # Kleingedrucktes: alt-←/→ ist auf macOS die Wortweise-Navigation im
+  # Text, alt-shift-←/→ die Wortweise-Auswahl. AeroSpace greift global,
+  # du verlierst das also in Obsidian, iA Writer und CotEditor. Wenn dich
+  # das beim Schreiben stört: hier alt- durch alt-ctrl- ersetzen.
+  alt-left  = 'focus left'
+  alt-down  = 'focus down'
+  alt-up    = 'focus up'
+  alt-right = 'focus right'
+
+  # Mit shift: das Fenster im Raster umsortieren.
+  alt-shift-left  = 'move left'
+  alt-shift-down  = 'move down'
+  alt-shift-up    = 'move up'
+  alt-shift-right = 'move right'
+
+  # ── Größe ─────────────────────────────────────────────────────────────
+  alt-minus = 'resize smart -100'
+  alt-equal = 'resize smart +100'
+
+  # ── Workspaces ────────────────────────────────────────────────────────
+  # 1–3 liegen auf dem LG (oben), 4–6 auf dem Odyssey (unten).
+  alt-1 = 'workspace 1'
+  alt-2 = 'workspace 2'
+  alt-3 = 'workspace 3'
+  alt-4 = 'workspace 4'
+  alt-5 = 'workspace 5'
+  alt-6 = 'workspace 6'
+  alt-7 = 'workspace 7'
+  alt-tab = 'workspace-back-and-forth'
+
+  alt-shift-1 = 'move-node-to-workspace 1 --focus-follows-window'
+  alt-shift-2 = 'move-node-to-workspace 2 --focus-follows-window'
+  alt-shift-3 = 'move-node-to-workspace 3 --focus-follows-window'
+  alt-shift-4 = 'move-node-to-workspace 4 --focus-follows-window'
+  alt-shift-5 = 'move-node-to-workspace 5 --focus-follows-window'
+  alt-shift-6 = 'move-node-to-workspace 6 --focus-follows-window'
+  alt-shift-7 = 'move-node-to-workspace 7 --focus-follows-window'
+
+  # ── Monitor-Wechsel: ctrl-↑ / ctrl-↓ ──────────────────────────────────
+  # KEIN alt-o / alt-shift-o mehr. Auf einer Tastatur, auf der Umlaute
+  # über opt+a/o/u entstehen, würde alt-o das ö kaputtmachen.
+  # Aus demselben Grund sind alt-a und alt-u nirgends belegt.
+
+  # ── Aufbau ────────────────────────────────────────────────────────────
+  # Baut das komplette Setup: Ghostty-Fenster mit Tabs, alle Apps,
+  # beide Monitore. Einmal morgens.
+  alt-ctrl-a = 'exec-and-forget ~/.config/aerospace/env/build-all.sh'
+  # Ghostty — EIN Fenster pro Zweck, keine Tabs.
+  # Native macOS-Tabs sind einzelne Fenster in einer Gruppe; AeroSpace
+  # kachelt Gruppenmitglieder und macOS reisst sie dabei heraus. Deshalb
+  # umgeschaltet wird mit AeroSpace, nicht mit Ghostty-Tabs.
+  alt-ctrl-1 = 'exec-and-forget ~/.config/aerospace/env/ghostty-herdr.sh'
+  alt-ctrl-5 = 'exec-and-forget ~/.config/aerospace/env/ghostty-remote.sh'
+  alt-ctrl-6 = 'exec-and-forget ~/.config/aerospace/env/ghostty-tools.sh'
+  # Nur die Layouts auf 4 und 5 richten (r = relayout).
+  # Bewusst nicht alt-ctrl-l — zu nah an alt-ctrl-left.
+  alt-ctrl-r = 'exec-and-forget ~/.config/aerospace/env/relayout.sh'
+
+  # ── Service-Modus ─────────────────────────────────────────────────────
+  alt-shift-semicolon = 'mode service'
+
+[mode.service.binding]
+  esc       = ['reload-config', 'mode main']
+  r         = ['flatten-workspace-tree', 'mode main']
+  f         = ['layout floating tiling', 'mode main']
+  backspace = ['close-all-windows-but-current', 'mode main']
+  left      = ['join-with left',  'mode main']
+  down      = ['join-with down',  'mode main']
+  up        = ['join-with up',    'mode main']
+  right     = ['join-with right', 'mode main']
