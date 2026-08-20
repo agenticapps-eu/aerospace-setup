@@ -71,14 +71,26 @@ on-focus-changed = ['move-mouse window-lazy-center']
 # fokussiert ist (window-lazy-center scheitert dann).
 on-focused-monitor-changed = ['move-mouse monitor-lazy-center']
 
-# AutoRaise-Ersatz: Fokus folgt der Maus. Seit 17.08.2026 aktiv.
+# Fokus folgt der Maus — AUS, das macht AutoRaise. Warum:
 #
-# Unterschied zu deinem alten AutoRaise: AeroSpace hat KEINE Verzögerung.
-# Dein AutoRaise lief mit -delay 6 (≈300 ms Hover, bevor es umschaltet).
-# Hier schaltet es sofort. Bei gestapelten Monitoren heisst das: fährt der
-# Cursor über die Kante zwischen LG und Odyssey, wandert der Fokus mit.
-# Wenn dich das nervt, hier auf false — Speichern genügt.
-focus-follows-mouse.enabled = true
+# AeroSpace kennt hier genau einen Schalter. Nachgesehen im Quelltext,
+# Sources/AppBundle/config/parseFocusFollowsMouse.swift:
+#
+#     private let focusFollowsMouseParserTable: [...] = [
+#         "enabled": Parser(\.enabled, parseBool),
+#     ]
+#
+# Kein delay, keine Verweildauer, keine App-Ausnahmen. Die Umsetzung
+# hängt an einem globalen .mouseMoved-Monitor und feuert bewusst ohne
+# Timer; ausserdem ruft sie nativeFocus(), hebt das Fenster also an.
+# Bei gestapelten Monitoren heisst das: Cursor über die Kante zwischen
+# LG und Odyssey, und der Fokus springt sofort mit.
+#
+# AutoRaise 5.6.1 kann beides besser: 250 ms Verweildauer, und im
+# Focus-First-Build fokussieren OHNE anzuheben — beim Tiling überlappt
+# ohnehin nichts, Anheben wäre sinnlose Bewegung.
+#     /Applications/AutoRaise.app  ·  -delay 0 -focusDelay 6
+focus-follows-mouse.enabled = false
 
 # Apps, die macOS versteckt hat (cmd-h), wieder einblenden statt ignorieren.
 automatically-unhide-macos-hidden-apps = true
