@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="de">
+<meta charset="utf-8">
+<title>AeroSpace — Cheatsheet</title>
+<!--
+  Quelle für AeroSpace-Cheatsheet.pdf. Neu bauen:
+      weasyprint cheatsheet-source.html AeroSpace-Cheatsheet.pdf
+  Zwei Seiten A4 quer. Flexbox statt Grid, weil WeasyPrint damit
+  verlässlicher umgeht.
+-->
+<style>
+  @page { size: A4 landscape; margin: 10mm 11mm; }
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 9.5pt; line-height: 1.36; color: #16181d; margin: 0;
+  }
+  h1 { font-size: 17pt; margin: 0 0 1mm; letter-spacing: -.2pt; }
+  h1 span { font-weight: 400; color: #6b7280; font-size: 11.5pt; }
+  h2 {
+    font-size: 8.6pt; text-transform: uppercase; letter-spacing: .6pt;
+    color: #6b7280; margin: 0 0 1.6mm; padding-bottom: .8mm;
+    border-bottom: .4pt solid #d8dbe0; font-weight: 700;
+  }
+  .sub { color: #6b7280; font-size: 8.6pt; margin: 0 0 3mm; }
+  .cols { display: flex; gap: 5mm; }
+  .col { flex: 1; }
+  .box { margin-bottom: 4.0mm; break-inside: avoid; }
+  table { width: 100%; border-collapse: collapse; }
+  td { padding: 0.85mm 0; vertical-align: top; }
+  td.k { width: 40mm; white-space: nowrap; }
+  td.k2 { width: 52mm; white-space: nowrap; }
+  kbd {
+    font-family: "SF Mono", Menlo, Consolas, monospace; font-size: 8.3pt;
+    background: #f1f3f6; border: .4pt solid #d8dbe0; border-radius: 2pt;
+    padding: .3mm 1mm; white-space: nowrap;
+  }
+  code { font-family: "SF Mono", Menlo, Consolas, monospace; font-size: 8.3pt; }
+  .mono { font-family: "SF Mono", Menlo, Consolas, monospace; font-size: 8.3pt; }
+
+  /* Monitor-Diagramm */
+  .mon { border: .5pt solid #c8ccd3; border-radius: 3pt; margin-bottom: 2mm; }
+  .mon .cap {
+    background: #f1f3f6; padding: 1.4mm 2.4mm; font-size: 8.2pt; color: #4b5563;
+    border-bottom: .4pt solid #d8dbe0; border-radius: 3pt 3pt 0 0;
+  }
+  .ws { display: flex; }
+  .ws div {
+    flex: 1; padding: 1.8mm 2.4mm; border-right: .4pt dashed #d8dbe0;
+    font-size: 8.3pt;
+  }
+  .ws div:last-child { border-right: 0; }
+  .ws b { display: block; font-size: 8.6pt; letter-spacing: .3pt; }
+  .ws em { color: #6b7280; font-style: normal; }
+  .lg  { background: #eef4ff; }
+  .od  { background: #f6f8fa; }
+
+  .note {
+    background: #fff8e6; border-left: 1.6pt solid #e3a008;
+    padding: 2.2mm 3mm; margin-bottom: 3.5mm; font-size: 8.6pt;
+  }
+  .note b { color: #92400e; }
+  .warn { background: #fdeeee; border-left-color: #dc2626; }
+  .warn b { color: #991b1b; }
+  .foot { color: #9aa0a8; font-size: 7.6pt; margin-top: 2mm; }
+  .brk { break-before: page; }
+</style>
+
+<h1>AeroSpace <span>— Layout, Tasten, Erste Hilfe</span></h1>
+<p class="sub">
+  LG ULTRAWIDE 3440×1440 (oben) über Odyssey G93SC 5120×1440 (unten, Main)
+  · AeroSpace 0.21.3 · Stand 20.08.2026
+</p>
+
+<div class="mon">
+  <div class="cap">LG ULTRAWIDE — oben · genau <b>ein</b> Workspace, damit nichts nach unten durchblitzt</div>
+  <div class="ws lg">
+    <div><b>1 · DEV</b><em>Ghostty (herdr lokal) │ Obsidian</em></div>
+  </div>
+</div>
+
+<div class="mon">
+  <div class="cap">Odyssey G93SC — unten · alles Umschaltbare</div>
+  <div class="ws od">
+    <div><b>2 · DISCOVER</b><em>Zen │ Claude │ Raindrop ⁄ Reader</em></div>
+    <div><b>3 · WORK</b><em>Dia │ Slack │ Google Meet</em></div>
+    <div><b>4 · COMM</b><em>WhatsApp │ Fastmail<br>(+ Teams n. Bedarf)</em></div>
+    <div><b>5 · REMOTE</b><em>Ghostty: hermes │ homelab</em></div>
+    <div><b>6 · TOOLS</b><em>Ghostty Terminal │ Chrome</em></div>
+    <div><b>7 · PROD</b><em>ForkLift │ Superlist</em></div>
+  </div>
+</div>
+
+<div class="cols">
+  <div class="col">
+    <div class="box">
+      <h2>Ebene 1 · ctrl = Workspace &amp; Monitor</h2>
+      <table>
+        <tr><td class="k"><kbd>ctrl</kbd> <kbd>←</kbd> <kbd>→</kbd></td><td>Workspace wechseln (auf diesem Monitor)</td></tr>
+        <tr><td class="k"><kbd>ctrl</kbd> <kbd>↑</kbd> <kbd>↓</kbd></td><td>Monitor wechseln — ↑ LG, ↓ Odyssey</td></tr>
+        <tr><td class="k"><kbd>ctrl</kbd><kbd>⇧</kbd> Pfeil</td><td>dasselbe, Fenster mitnehmen</td></tr>
+        <tr><td class="k"><kbd>alt</kbd> <kbd>1</kbd>…<kbd>7</kbd></td><td>Workspace direkt</td></tr>
+        <tr><td class="k"><kbd>alt</kbd><kbd>⇧</kbd> <kbd>1</kbd>…<kbd>7</kbd></td><td>Fenster dorthin, Fokus geht mit</td></tr>
+        <tr><td class="k"><kbd>alt</kbd> <kbd>⇥</kbd></td><td>zurück zum vorherigen Workspace</td></tr>
+      </table>
+    </div>
+
+    <div class="box">
+      <h2>Ebene 2 · alt = Fenster im Workspace</h2>
+      <table>
+        <tr><td class="k"><kbd>alt</kbd> Pfeil</td><td>Fenster fokussieren</td></tr>
+        <tr><td class="k"><kbd>alt</kbd><kbd>⇧</kbd> Pfeil</td><td>Fenster im Raster umsortieren</td></tr>
+        <tr><td class="k"><kbd>alt</kbd><kbd>⇧</kbd><kbd>f</kbd></td><td>aus dem Raster lösen ⁄ zurück</td></tr>
+        <tr><td class="k"><kbd>alt</kbd><kbd>f</kbd></td><td>Vollbild</td></tr>
+        <tr><td class="k"><kbd>alt</kbd><kbd>b</kbd></td><td>Raster gleichmässig verteilen</td></tr>
+        <tr><td class="k"><kbd>alt</kbd><kbd>−</kbd> <kbd>alt</kbd><kbd>=</kbd></td><td>Grösse ±100 px</td></tr>
+        <tr><td class="k"><kbd>alt</kbd><kbd>⇧</kbd><kbd>−</kbd></td><td>Spalte vertikal teilen (join left)</td></tr>
+        <tr><td class="k"><kbd>alt</kbd><kbd>⇧</kbd><kbd>=</kbd></td><td>wieder zusammenfassen</td></tr>
+        <tr><td class="k"><kbd>alt</kbd><kbd>⇧</kbd><kbd>;</kbd></td><td>Service-Modus · <kbd>esc</kbd> zurück, <kbd>r</kbd> Baum platt</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="col">
+    <div class="box">
+      <h2>Aufbauen &amp; Aufräumen</h2>
+      <table>
+        <tr><td class="k"><kbd>alt</kbd><kbd>ctrl</kbd><kbd>a</kbd></td><td>morgens: Apps öffnen, Ghostty setzen, einordnen</td></tr>
+        <tr><td class="k"><kbd>alt</kbd><kbd>ctrl</kbd><kbd>r</kbd></td><td>nur einordnen — öffnet und beendet nichts</td></tr>
+        <tr><td class="k"><kbd>alt</kbd><kbd>ctrl</kbd><kbd>2</kbd></td><td>Workspace 2 exakt wiederherstellen</td></tr>
+        <tr><td class="k"><kbd>alt</kbd><kbd>ctrl</kbd><kbd>1</kbd></td><td>Ghostty herdr lokal → 1</td></tr>
+        <tr><td class="k"><kbd>alt</kbd><kbd>ctrl</kbd><kbd>5</kbd></td><td>Ghostty hermes + homelab → 5</td></tr>
+        <tr><td class="k"><kbd>alt</kbd><kbd>ctrl</kbd><kbd>6</kbd></td><td>Ghostty Terminal → 6</td></tr>
+      </table>
+      <p class="foot">
+        Einzeln: <span class="mono">gt.sh herdr │ hermes │ homelab │ term │ btop │ spf</span>
+      </p>
+    </div>
+
+    <div class="box">
+      <h2>Wo steht was</h2>
+      <table>
+        <tr><td class="k2 mono">env/layout.conf</td><td>Soll-Tabelle: App → Workspace</td></tr>
+        <tr><td class="k2 mono">aerospace.toml</td><td>Regeln, Tasten, Lücken, Monitore</td></tr>
+        <tr><td class="k2 mono">env/relayout.sh</td><td>ordnet nach der Soll-Tabelle ein</td></tr>
+        <tr><td class="k2 mono">env/hosts.conf</td><td>SSH-Ziele (nicht im Repo)</td></tr>
+        <tr><td class="k2">AeroPilot</td><td>Menüleiste: Fenster, Config, Skripte, Warnungen</td></tr>
+        <tr><td class="k2">AutoRaise</td><td>Fokus folgt der Maus nach 200 ms, ohne Anheben</td></tr>
+      </table>
+    </div>
+
+    <div class="note warn">
+      <b>Tastenpositionen sind immer QWERTY.</b>
+      EurKEY hat eine US-Basis — dort stimmt alles. Auf der <b>deutschen</b>
+      Belegung wandert <kbd>alt</kbd><kbd>/</kbd> („Ausrichtung kippen") auf
+      die Minustaste. Ein Anschlag, ganzer Workspace hochkant.
+      Zurück: <kbd>alt</kbd><kbd>ctrl</kbd><kbd>2</kbd>.
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════ Seite 2 ══════════════════════════ -->
+<div class="brk"></div>
+
+<h1>Erste Hilfe <span>— Fehlerbild, Ursache, Handgriff</span></h1>
+<p class="sub">Die vier Fälle, die wirklich vorgekommen sind.</p>
+
+<div class="cols">
+  <div class="col">
+    <div class="box">
+      <h2>Ein Fenster ist auf jedem Workspace sichtbar</h2>
+      <p>AeroSpace hat es aus der Verwaltung verloren. Es blendet fremde
+      Workspaces aus, indem es deren Fenster <em>wegschiebt</em> — was es
+      nicht kennt, schiebt es nie weg. Der Nachbar in derselben Spalte zieht
+      sich derweil auf volle Höhe, weil er allein im Container steht.</p>
+      <p><b>Erkennen:</b> AeroPilot zeigt es orange, oder
+      <span class="mono">aerospace list-windows --monitor all</span> kennt
+      es nicht.<br>
+      <b>Beheben:</b> App neu starten (Knopf in AeroPilot), dann
+      <kbd>alt</kbd><kbd>ctrl</kbd><kbd>r</kbd>. Es gibt kein Kommando, das
+      die Fenstererfassung neu anstösst — nur ein neu erscheinendes Fenster
+      wird erfasst.</p>
+    </div>
+
+    <div class="box">
+      <h2>Ein Workspace steht plötzlich hochkant</h2>
+      <p>Bänder übereinander statt Spalten nebeneinander: die Wurzel ist auf
+      vertikal gekippt. Ein einziger Anschlag auf <kbd>alt</kbd><kbd>/</kbd>
+      reicht, wenn das fokussierte Fenster direkt in der Wurzel liegt.</p>
+      <p><b>Beheben:</b> <kbd>alt</kbd><kbd>ctrl</kbd><kbd>2</kbd> für
+      Workspace 2, sonst<br>
+      <span class="mono">aerospace layout --workspace N --root h_tiles</span>
+      und <kbd>alt</kbd><kbd>b</kbd>.</p>
+    </div>
+
+    <div class="box">
+      <h2>Ein Fenster liegt auf dem falschen Workspace</h2>
+      <p>Fast immer ein Fenster, das schon offen war, als sich eine Regel
+      geändert hat: <span class="mono">on-window-detected</span> greift nur
+      beim <em>Erscheinen</em> eines Fensters, nie rückwirkend.</p>
+      <p><b>Beheben:</b> <kbd>alt</kbd><kbd>ctrl</kbd><kbd>r</kbd>.
+      AeroPilot meldet solche Fenster blau und sortiert sie auf Knopfdruck
+      ein.</p>
+    </div>
+  </div>
+
+  <div class="col">
+    <div class="box">
+      <h2>Ghostty macht auf einmal neue Fenster auf</h2>
+      <p>Dann ist ein Tab entstanden. Native macOS-Tabs sind mehrere Fenster
+      in einer Gruppe und mit Tiling unvereinbar. Die Ghostty-Config bindet
+      alle 23 Tab-Kürzel ab — der Menüpunkt <em>Shell → New Tab</em> lässt
+      sich aber nicht entfernen.</p>
+      <p><b>Beheben:</b> alle Ghostty-Fenster schliessen, dann
+      <kbd>alt</kbd><kbd>ctrl</kbd><kbd>a</kbd>.</p>
+    </div>
+
+    <div class="box">
+      <h2>Notausgang</h2>
+      <table>
+        <tr><td class="k2 mono">aerospace enable off</td><td>Verwaltung aus, alle Fenster frei</td></tr>
+        <tr><td class="k2 mono">aerospace enable on</td><td>zurück</td></tr>
+      </table>
+      <p class="foot">Beides auch in AeroPilot unter <em>Aktionen</em>. Danach <kbd>alt</kbd><kbd>ctrl</kbd><kbd>a</kbd>.</p>
+    </div>
+
+    <div class="box">
+      <h2>Nachsehen</h2>
+      <p class="mono">
+        aerospace list-windows --monitor all<br>
+        &nbsp;&nbsp;--format '%{workspace} %{app-name} %{window-title}'<br><br>
+        aerospace reload-config --dry-run<br>
+        macos/check-bleed.sh<br>
+        macos/monitor-arrangement.sh status
+      </p>
+    </div>
+
+    <div class="note">
+      <b>--dry-run gibt auch bei Fehlern Exit-Code 0 zurück.</b>
+      Die Ausgabe zählt, nicht der Rückgabewert. AeroPilot liest sie und
+      rollt bei <span class="mono">[ERROR]</span> automatisch zurück.
+    </div>
+
+    <div class="note">
+      <b>Fenstertitel ändern sich im Betrieb.</b>
+      Google Meet heisst in der Lobby „Google Meet" und im Anruf
+      „Meet – &lt;Termin&gt; …". Titelregeln deshalb mit Anker schreiben,
+      nicht mit exakter Gleichheit.
+    </div>
+  </div>
+</div>
