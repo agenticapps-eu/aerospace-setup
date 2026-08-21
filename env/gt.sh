@@ -47,9 +47,14 @@ RUNNER="$HERE/gt-run.sh"
 # von gt-run.sh per ANSI-Escape gesetzt, bevor das Programm startet.
 profile="${1:-}"
 case "$profile" in
+  # --session: herdr hält die Sitzung auf der Gegenstelle am Leben. Bricht
+  #   die Verbindung ab, läuft dort alles weiter und der nächste Aufruf
+  #   hängt sich wieder dran, statt bei null anzufangen.
+  # --retry:   siehe gt-run.sh — kurze Netzhänger heilen von selbst, und
+  #   das Fenster stirbt nicht mit der Verbindung.
   herdr)   ws="${2:-1}"; args="herdr herdr" ;;
-  hermes)  ws="${2:-5}"; args="hermes herdr --remote $HERMES_HOST" ;;
-  homelab) ws="${2:-5}"; args="homelab herdr --remote $NAS_HOST" ;;
+  hermes)  ws="${2:-5}"; args="hermes --retry herdr --remote $HERMES_HOST --session hermes" ;;
+  homelab) ws="${2:-5}"; args="homelab --retry herdr --remote $NAS_HOST --session homelab" ;;
   term)    ws="${2:-6}"; args="terminal" ;;
   btop)    ws="${2:-6}"; args="btop btop" ;;
   spf)     ws="${2:-6}"; args="superfile spf" ;;

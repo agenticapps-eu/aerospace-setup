@@ -62,3 +62,11 @@ keybind = ctrl+shift+tab=unbind
 #   defaults write -g AppleWindowTabbingMode -string manual
 # Damit klebt macOS neue Fenster nicht mehr automatisch als Tab an ein
 # bestehendes. Zurücknehmen: defaults delete -g AppleWindowTabbingMode
+
+# ── Fenster nicht mit dem Befehl sterben lassen ───────────────────────
+# Vorgabe ist false: endet der Befehl, schliesst sich die Oberfläche.
+# Am 19. und 21.08.2026 sind die herdr-Sitzungen zu hermes und ugreen
+# nachts sauber beendet worden — und mit ihnen verschwanden die Fenster
+# samt Fehlermeldung, bevor sie jemand lesen konnte.
+# Mit true bleibt das Fenster stehen und zeigt, was passiert ist.
+wait-after-command = true
