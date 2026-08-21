@@ -9,6 +9,36 @@ AERO="$(command -v aerospace || true)"
 [ -x "$AERO" ] || { osascript -e 'display notification "aerospace CLI nicht gefunden" with title "AeroSpace"'; exit 1; }
 
 GHOSTTY_BID=com.mitchellh.ghostty
+LIB_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+# ── read_layout [datei] ───────────────────────────────────────────────
+# Liest die Soll-Tabelle in vier parallele Arrays:
+#   r_bundle  r_ws  r_title  r_auto
+#
+# Parallele Arrays statt `declare -A`, weil macOS bash 3.2 mitbringt —
+# und weil die REIHENFOLGE bedeutungstragend ist: erste Übereinstimmung
+# gewinnt, wie bei on-window-detected. Ein assoziatives Array hätte die
+# Reihenfolge verloren und damit die Titelregeln entwertet.
+#
+# Ein `+` vor der Bundle-ID heisst: beim Aufbau (build-all.sh) öffnen.
+r_bundle=(); r_ws=(); r_title=(); r_auto=()
+read_layout() {
+  local conf="${1:-$LIB_DIR/layout.conf}" line b w t
+  r_bundle=(); r_ws=(); r_title=(); r_auto=()
+  [ -f "$conf" ] || { echo "Soll-Tabelle fehlt: $conf" >&2; return 1; }
+  while IFS= read -r line; do
+    line="${line%%#*}"
+    [ -z "${line// /}" ] && continue
+    read -r b w t <<< "$line"
+    [ -z "$b" ] && continue
+    case "$b" in
+      +*) r_auto+=("ja");   b="${b#+}" ;;
+      *)  r_auto+=("nein") ;;
+    esac
+    r_bundle+=("$b"); r_ws+=("$w"); r_title+=("$t")
+  done < "$conf"
+  return 0
+}
 
 # mkdir ist atomar — verhindert zwei parallele Aufbauten.
 LOCKDIR=/tmp/aerospace-env.lock

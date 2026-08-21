@@ -16,22 +16,8 @@
 # ══════════════════════════════════════════════════════════════════════
 source "$(dirname "$0")/_lib.sh"
 HERE="$(cd "$(dirname "$0")" && pwd)"
-CONF="$HERE/layout.conf"
 
-[ -f "$CONF" ] || { echo "Soll-Tabelle fehlt: $CONF"; exit 1; }
-
-# ── Soll-Tabelle einlesen ─────────────────────────────────────────────
-# Parallele Arrays statt assoziativem Array: macOS bringt bash 3.2 mit,
-# `declare -A` gibt es dort nicht. Ausserdem ist die REIHENFOLGE hier
-# bedeutungstragend — erste Übereinstimmung gewinnt.
-r_bundle=(); r_ws=(); r_title=()
-while IFS= read -r line; do
-  line="${line%%#*}"
-  [ -z "${line// /}" ] && continue
-  read -r b w t <<< "$line"
-  [ -z "$b" ] && continue
-  r_bundle+=("$b"); r_ws+=("$w"); r_title+=("$t")
-done < "$CONF"
+read_layout || exit 1
 echo "Soll-Tabelle: ${#r_bundle[@]} Regeln"
 
 # ── Fenster durchgehen ────────────────────────────────────────────────

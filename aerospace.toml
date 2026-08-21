@@ -221,8 +221,14 @@ on-window-detected = [
   # Chrome-Fenster als PWA eingeordnet und floatend über Dia und Slack
   # gelegt. Genau das war die Überlagerung auf Workspace 5.
   #
-  # Meet im Ruhezustand heisst exakt "Google Meet" → gekachelt auf 5.
-  { if = "test %{app-bundle-id} = com.google.Chrome && test %{window-title} = 'Google Meet'",
+  # ZWEI TITEL, am 20.08.2026 im laufenden Meeting nachgemessen:
+  #   Lobby / kein Anruf   "Google Meet"
+  #   im Anruf             "Meet – Management Huddle - Camera and microphone recording"
+  # Deshalb hier ein eng gefasster Anker statt exakter Gleichheit.
+  # `Meet( |$)` trifft beide und schnappt sich kein Fenster, das nur
+  # "Meeting" im Titel trägt — genau daran war die frühere Regex
+  # gescheitert, die jedes Chrome-Fenster als PWA einstufte.
+  { if = "test %{app-bundle-id} = com.google.Chrome && test %{window-title} ~= '^(Google )?Meet( |$)'",
     run = 'move-node-to-workspace 3' },
 
   # Zoom: floatend auf 5, Meeting-Fenster kacheln nie sinnvoll.
@@ -233,8 +239,8 @@ on-window-detected = [
   # über Regeln — alle teilen com.mitchellh.ghostty. Die Ghostty-Regel
   # oben (→ 1) ist nur der Ruhezustand für von Hand geöffnete Fenster.
   # Alles andere Chrome → 6, neben dem Terminal.
-  # Achtung: wechselt Meet im Anruf den Titel, landet es auch auf 7.
-  # Dann mit alt-shift-5 zurückschieben.
+  # Die Meet-Regel oben greift vorher und deckt beide Titel ab — auch den
+  # im laufenden Anruf. Erste Übereinstimmung gewinnt.
   { if = 'test %{app-bundle-id} = com.google.Chrome',           run = 'move-node-to-workspace 6' },
   { if = 'test %{app-bundle-id} = pro.writer.mac',              run = 'move-node-to-workspace 6' },
   { if = 'test %{app-bundle-id} = com.coteditor.CotEditor',     run = 'move-node-to-workspace 6' },

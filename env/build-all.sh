@@ -14,7 +14,17 @@
 #                    7 PRODUCTIVITY   ForkLift │ Superlist
 #
 # Einmal morgens. Erster Lauf 30–60 s, weil Electron-Apps langsam sind.
-# Danach ist alles offen und relayout.sh (alt-ctrl-r) reicht.
+#
+# WAS SICH GEÄNDERT HAT (20.08.2026): Die Zuordnung App → Workspace stand
+# hier fest im Skript, ein zweites Mal in relayout.sh und ein drittes Mal
+# als on-window-detected in der aerospace.toml. Drei Listen, die bei jeder
+# Änderung einzeln nachgezogen werden mussten — und beim Umnummerieren der
+# Workspaces eben nicht wurden. Jetzt gibt es nur noch layout.conf:
+#
+#   dieses Skript   öffnet die mit `+` markierten Apps
+#   relayout.sh     schiebt alles an seinen Platz
+#
+# Damit ist der Aufbau nichts anderes als „Apps öffnen, dann aufräumen".
 # ══════════════════════════════════════════════════════════════════════
 source "$(dirname "$0")/_lib.sh"
 HERE="$(cd "$(dirname "$0")" && pwd)"
@@ -23,8 +33,11 @@ HERE="$(cd "$(dirname "$0")" && pwd)"
 # und selbst verwalten.
 rmdir "$LOCKDIR" 2>/dev/null; trap - EXIT
 
-# Ghostty zuerst komplett beenden: alte macOS-Tab-Gruppen lösen sich
-# nicht von selbst auf, und Reste würden sich wieder verschmelzen.
+read_layout || exit 1
+
+# ── 1) Ghostty ────────────────────────────────────────────────────────
+# Zuerst komplett beenden: bestehende macOS-Tab-Gruppen lösen sich nicht
+# nachträglich auf, AppleWindowTabbingMode gilt nur für NEUE Fenster.
 echo "▸ Ghostty zurücksetzen …"
 ghostty_reset
 
@@ -33,44 +46,41 @@ echo "▸ Ghostty: herdr lokal (1), Remote (5), Terminal (6) …"
 "$HERE/ghostty-remote.sh"
 "$HERE/ghostty-tools.sh"
 
-echo "▸ LG: Workspace 1 (Dev) …"
-open_in md.obsidian                 1
+# ── 2) Apps öffnen ────────────────────────────────────────────────────
+# Erst alle anstossen, dann gemeinsam warten. Nacheinander zu warten
+# würde die Startzeiten addieren statt sie zu überlappen.
+todo=()
+for i in "${!r_bundle[@]}"; do
+  [ "${r_auto[$i]}" = "ja" ] || continue
+  b="${r_bundle[$i]}"
+  case " ${todo[*]:-} " in *" $b "*) continue ;; esac
+  todo+=("$b")
+done
+echo "▸ ${#todo[@]} Apps öffnen …"
+for b in "${todo[@]}"; do
+  open -b "$b" >/dev/null 2>&1 || echo "  warn: $b startet nicht"
+done
 
-echo "▸ Odyssey: Workspace 2 (Discover) …"
-# Vier gleiche Spalten, deterministisch. Die vertikal geteilte dritte
-# Spalte habe ich rausgenommen: sie hing an der Annahme, dass sich die
-# Fenster in Aufrufreihenfolge von links nach rechts einreihen. Das tun
-# sie nicht — dadurch landete Reader unter CLAUDE statt unter Raindrop.
-# Wenn du die Teilung willst: Reader fokussieren, alt-shift-minus, alt-b.
-open_in app.zen-browser.zen            2
-open_in com.anthropic.claudefordesktop 2
-open_in io.raindrop.macapp             2
-open_in io.readwise.read               2
-tidy 2
+echo "▸ auf Fenster warten …"
+for i in $(seq 1 80); do        # max. 20 s
+  missing=()
+  for b in "${todo[@]}"; do
+    [ -z "$(ids "$b")" ] && missing+=("$b")
+  done
+  [ ${#missing[@]} -eq 0 ] && break
+  sleep 0.25
+done
+if [ ${#missing[@]} -gt 0 ]; then
+  echo "  ohne Fenster geblieben: ${missing[*]}"
+  echo "  (kein Abbruch — der Rest wird trotzdem eingeordnet)"
+fi
 
-
-echo "▸ Odyssey: Workspace 4 (Communication) und 7 (Productivity) …"
-open_in net.whatsapp.WhatsApp       4
-open_in com.fastmail.mac.Fastmail   4
-open_in com.binarynights.ForkLift   7
-open_in com.superlist.superlist     7
-
-echo "▸ Odyssey: Workspace 3 (Work) …"
-place_one company.thebrowser.dia    3
-place_one com.tinyspeck.slackmacgap 3
-# Google Meet ist eine Chrome-PWA (com.google.Chrome) — nur am Titel zu
-# treffen, sonst würden die Chrome-Fenster von 6 mitwandern.
-while read -r id; do
-  [ -n "$id" ] && "$AERO" move-node-to-workspace --window-id "$id" 3 --focus-follows-window
-done <<< "$(ids_titled com.google.Chrome 'Google Meet')"
-"$AERO" balance-sizes --workspace 3 2>/dev/null
-
-echo "▸ Hälften richten …"
-tidy 1 4 7
+# ── 3) Einordnen ──────────────────────────────────────────────────────
+# Ab hier macht relayout.sh die Arbeit: Soll-Tabelle lesen, verschieben,
+# ausgleichen, Workspace 2 verschachteln.
+echo "▸ einordnen …"
+"$HERE/relayout.sh"
 
 # Fokus: unten Discover, oben Dev
 show 2 1
-
-echo
-layout_report 1 2 3 4 5 6 7
 notify "Setup aufgebaut — 7 Workspaces"
