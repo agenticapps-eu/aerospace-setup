@@ -261,6 +261,31 @@ on-window-detected = [
 # ═══════════════════════════════════════════════════════════════════════
 [mode.main.binding]
 
+  # ⚠️  TASTATURLAYOUT — die Falle, wenn du zwischen deinen beiden
+  #     Belegungen wechselst
+  #
+  # AeroSpace liest Tasten IMMER als physische QWERTY-Positionen. Aus der
+  # Doku: „By default, key bindings in the config are perceived as qwerty
+  # layout." Presets gibt es nur für dvorak und colemak, keins für Deutsch.
+  #
+  # EurKEY hat eine US-QWERTY-Basis, dort stimmt alles. Auf der DEUTSCHEN
+  # Belegung wandern diese Bindings auf andere Tasten:
+  #
+  #     Config                  EurKEY   Deutsch
+  #     alt-slash               /        -      ← kippt die Ausrichtung!
+  #     alt-minus               -        ß
+  #     alt-equal               =        ´
+  #     alt-shift-semicolon     ;        ö
+  #
+  # Die erste Zeile ist die gefährliche: auf Deutsch liegt „Ausrichtung
+  # kippen" auf alt + „-" — also genau der Taste, die man drückt, wenn man
+  # die Grösse ändern oder eine Spalte teilen will. Ein Anschlag, ganzer
+  # Workspace gedreht, kein Rückgängig. Zurück geht es mit alt-ctrl-2
+  # (Workspace 2) bzw. alt-b und alt-shift-minus von Hand.
+  #
+  # Wenn du dauerhaft auf Deutsch umsteigst: hier die Notationen tauschen,
+  # nicht die Tasten suchen.
+
   # ── Layout ────────────────────────────────────────────────────────────
   alt-slash   = 'layout tiles horizontal vertical'
   alt-comma   = 'layout accordion horizontal vertical'
@@ -359,9 +384,18 @@ on-window-detected = [
   alt-ctrl-1 = 'exec-and-forget ~/.config/aerospace/env/ghostty-herdr.sh'
   alt-ctrl-5 = 'exec-and-forget ~/.config/aerospace/env/ghostty-remote.sh'
   alt-ctrl-6 = 'exec-and-forget ~/.config/aerospace/env/ghostty-tools.sh'
-  # Nur die Layouts auf 4 und 5 richten (r = relayout).
+  # Nur die Layouts richten (r = relayout).
   # Bewusst nicht alt-ctrl-l — zu nah an alt-ctrl-left.
   alt-ctrl-r = 'exec-and-forget ~/.config/aerospace/env/relayout.sh'
+
+  # Workspace 2 exakt wiederherstellen: Zen │ Claude │ Raindrop ⁄ Reader.
+  #
+  # WOZU EINE EIGENE TASTE: Am 20.08.2026 war die Wurzel von Workspace 2
+  # auf vertikal gekippt — vier Bänder übereinander statt drei Spalten —
+  # und die Verschachtelung von Raindrop und Reader aufgelöst. Das Skript
+  # liest die Baumreihenfolge, sortiert, fasst Reader mit Raindrop
+  # zusammen und gleicht aus. Ein Anschlag statt Terminal.
+  alt-ctrl-2 = 'exec-and-forget ~/.config/aerospace/env/discover-layout.sh'
 
   # ── Service-Modus ─────────────────────────────────────────────────────
   alt-shift-semicolon = 'mode service'
