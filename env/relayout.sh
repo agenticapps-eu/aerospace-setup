@@ -3,66 +3,74 @@
 # @label: Layouts richten
 # @key:   alt-ctrl-r
 # ══════════════════════════════════════════════════════════════════════
-# RELAYOUT — richtet die Layouts auf 2 und 5            Hotkey: alt-ctrl-r
+# RELAYOUT — alle Fenster an ihren Platz               Hotkey: alt-ctrl-r
 #
-#   Workspace 2 (DISCOVER, Odyssey)
-#     Zen │ Claude │ Raindrop │ Reader     (vier gleiche Spalten)
+# Liest env/layout.conf und schiebt jedes offene Fenster dorthin, wo es
+# laut Soll-Tabelle hingehört. Öffnet nichts, beendet nichts.
 #
-#   Workspace 3 (WORK, Odyssey)
-#     Dia │ Slack │ Google Meet          (drei gleiche Drittel)
-#
-# Nutze das, wenn ein Layout verrutscht ist — es öffnet keine Apps,
-# sondern ordnet nur die bereits offenen Fenster.
+# WAS SICH GEÄNDERT HAT (20.08.2026): vorher standen die Zuordnungen hier
+# im Skript und deckten nur die Workspaces 2 und 3 ab. Als die Workspaces
+# umnummeriert wurden, lagen deshalb Fenster auf 5, 6 und 7 tagelang
+# falsch, ohne dass alt-ctrl-r etwas daran geändert hätte. Jetzt gibt es
+# genau eine Quelle, und sie deckt alles ab.
 # ══════════════════════════════════════════════════════════════════════
 source "$(dirname "$0")/_lib.sh"
+HERE="$(cd "$(dirname "$0")" && pwd)"
+CONF="$HERE/layout.conf"
 
-ZEN=app.zen-browser.zen
-CLAUDE=com.anthropic.claudefordesktop
-RAINDROP=io.raindrop.macapp
-READER=io.readwise.read
-DIA=company.thebrowser.dia
-SLACK=com.tinyspeck.slackmacgap
-# Google Meet ist eine Chrome-PWA und meldet sich als com.google.Chrome.
-# Nur am Titel unterscheidbar — echte Chrome-Fenster enden auf
-# "- Google Chrome", PWA-Fenster nicht.
-CHROME=com.google.Chrome
-MEET_TITLE='Google Meet'
+[ -f "$CONF" ] || { echo "Soll-Tabelle fehlt: $CONF"; exit 1; }
 
-# ── Workspace 2 · DISCOVER ────────────────────────────────────────────
-# Erst plattmachen und in eine Reihe bringen, dann die letzten zwei
-# Spalten zu einer vertikal geteilten Spalte zusammenfassen.
-"$AERO" flatten-workspace-tree --workspace 2 2>/dev/null
-"$AERO" layout --workspace 2 --root h_tiles 2>/dev/null
+# ── Soll-Tabelle einlesen ─────────────────────────────────────────────
+# Parallele Arrays statt assoziativem Array: macOS bringt bash 3.2 mit,
+# `declare -A` gibt es dort nicht. Ausserdem ist die REIHENFOLGE hier
+# bedeutungstragend — erste Übereinstimmung gewinnt.
+r_bundle=(); r_ws=(); r_title=()
+while IFS= read -r line; do
+  line="${line%%#*}"
+  [ -z "${line// /}" ] && continue
+  read -r b w t <<< "$line"
+  [ -z "$b" ] && continue
+  r_bundle+=("$b"); r_ws+=("$w"); r_title+=("$t")
+done < "$CONF"
+echo "Soll-Tabelle: ${#r_bundle[@]} Regeln"
 
-# Ohne --focus-follows-window: die Reihenfolge ist ohnehin nicht
-# erzwingbar, und der Fokus soll nicht herumspringen.
-for b in "$ZEN" "$CLAUDE" "$RAINDROP" "$READER"; do
-  while read -r id; do
-    [ -n "$id" ] && "$AERO" move-node-to-workspace --window-id "$id" 2
-  done <<< "$(ids "$b")"
+# ── Fenster durchgehen ────────────────────────────────────────────────
+moved=0; checked=0
+while IFS='|' read -r id bundle ws title; do
+  [ -z "$id" ] && continue
+  checked=$((checked+1))
+  for i in "${!r_bundle[@]}"; do
+    [ "${r_bundle[$i]}" = "$bundle" ] || continue
+    # Regel mit Titelmuster gilt nur bei passendem Titel; ohne Muster
+    # passt sie immer. So gewinnt die spezifischere Regel, weil sie in
+    # der Datei vorne steht.
+    if [ -n "${r_title[$i]}" ]; then
+      [[ "$title" =~ ${r_title[$i]} ]] || continue
+    fi
+    target="${r_ws[$i]}"
+    if [ "$target" != "-" ] && [ "$target" != "$ws" ]; then
+      "$AERO" move-node-to-workspace --window-id "$id" "$target" >/dev/null 2>&1 \
+        && { echo "  $ws → $target   $title"; moved=$((moved+1)); } \
+        || echo "  FEHLER bei $id ($title)"
+    fi
+    break   # erste Übereinstimmung gewinnt
+  done
+done <<< "$("$AERO" list-windows --monitor all \
+             --format '%{window-id}|%{app-bundle-id}|%{workspace}|%{window-title}')"
+
+echo "$checked Fenster geprüft, $moved verschoben."
+
+# ── Aufräumen ─────────────────────────────────────────────────────────
+sleep 0.4
+for w in 1 2 3 4 5 6 7; do
+  "$AERO" flatten-workspace-tree --workspace "$w" 2>/dev/null
+  "$AERO" layout --workspace "$w" --root h_tiles 2>/dev/null
+  "$AERO" balance-sizes --workspace "$w" 2>/dev/null
 done
-"$AERO" balance-sizes --workspace 2 2>/dev/null
 
-# Reader unter Raindrop schieben → gemeinsamer Container → vertikal
+# Workspace 2 braucht die verschachtelte dritte Spalte (Raindrop ⁄ Reader).
+# Das flatten oben löst sie auf, deshalb hier wieder aufbauen.
+rmdir "$LOCKDIR" 2>/dev/null; trap - EXIT
+"$HERE/discover-layout.sh" 2>/dev/null | tail -6
 
-
-# ── Workspace 3 · WORK ────────────────────────────────────────────────
-"$AERO" flatten-workspace-tree --workspace 3 2>/dev/null
-"$AERO" layout --workspace 3 --root h_tiles 2>/dev/null
-for b in "$DIA" "$SLACK"; do
-  while read -r id; do
-    [ -n "$id" ] && "$AERO" move-node-to-workspace --window-id "$id" 3 --focus-follows-window
-  done <<< "$(ids "$b")"
-done
-# Meet gezielt über den Titel holen, damit die Chrome-Fenster auf 6 bleiben
-while read -r id; do
-  [ -n "$id" ] && "$AERO" move-node-to-workspace --window-id "$id" 3 --focus-follows-window
-done <<< "$(ids_titled "$CHROME" "$MEET_TITLE")"
-"$AERO" balance-sizes --workspace 3 2>/dev/null
-
-# ── Die einfachen Hälften: 1 (LG), 3 Productivity, 4 Communication ────
-tidy 1 4 7
-
-echo
-layout_report 2 3
-notify "Layout gerichtet"
+notify "Layouts gerichtet — $moved Fenster verschoben"

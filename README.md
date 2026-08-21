@@ -94,9 +94,10 @@ Voraussetzung: AeroSpace **0.21+**. Ältere Fassungen kennen
 
 | | |
 |---|---|
+| `env/layout.conf` | **Soll-Tabelle:** Bundle-ID → Workspace |
 | `env/build-all.sh` | ganze Umgebung aufbauen, `alt-ctrl-a` |
 | `env/relayout.sh` | Fenster wieder einsortieren, `alt-ctrl-r` |
-| `env/discover-layout.sh` | Workspace 2 exakt aufbauen |
+| `env/discover-layout.sh` | Workspace 2 exakt aufbauen, `alt-ctrl-2` |
 | `env/ghostty-herdr.sh` · `-remote.sh` · `-tools.sh` | je ein Ghostty-Fenster |
 | `env/gt.sh <profil>` | einzelnes Ghostty-Fenster für einen Zweck |
 | `macos/check-bleed.sh` | misst überstehende Fenster (nur lesend) |
@@ -105,6 +106,18 @@ Voraussetzung: AeroSpace **0.21+**. Ältere Fassungen kennen
 Die Kopfzeilen `# @label:` / `# @group:` / `# @key:` machen ein Skript in
 [AeroPilot](https://github.com/agenticapps-eu/aeropilot) sichtbar, der
 Menüleisten-App zu diesem Setup.
+
+**Eine Soll-Tabelle, nicht drei.** `env/layout.conf` hält fest, welche App
+auf welchen Workspace gehört. `relayout.sh` liest sie, AeroPilot liest sie,
+und `alt-ctrl-r` stellt den Soll-Zustand her.
+
+Der Grund ist eine Eigenschaft von AeroSpace, die leicht zu übersehen ist:
+`on-window-detected` greift **nur, wenn ein Fenster erscheint** — nie
+rückwirkend. Ändert man eine Regel oder nummeriert Workspaces um, bleibt
+jedes bereits offene Fenster liegen, wo es war. Hier lagen deshalb nach
+einer Umnummerierung sieben Fenster einen Tag lang auf ihren alten Nummern,
+während die Config längst stimmte. Von aussen sah es aus, als sei eine App
+weggerutscht — dabei war die neu geöffnete die einzige, die richtig lag.
 
 **Ghostty ohne Tabs.** `ghostty/config` bindet alle 23 Tab-Kürzel ab. Native
 macOS-Tabs sind mehrere Fenster in einer Gruppe — für einen Tiling-Manager
