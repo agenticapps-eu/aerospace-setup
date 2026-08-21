@@ -153,6 +153,27 @@ entfernen.
 **Beheben:** alle Ghostty-Fenster schliessen, dann `alt-ctrl-a` — oder
 einzeln mit `gt.sh herdr` ⁄ `hermes` ⁄ `homelab` ⁄ `term` ⁄ `btop` ⁄ `spf`.
 
+### Eine Remote-Sitzung bricht ab
+
+Seit dem 21.08.2026 ist das kein Datenverlust mehr: `wait-after-command`
+hält das Fenster offen, `--retry` in `gt-run.sh` versucht es fünfmal mit
+ansteigender Wartezeit neu, und `herdr --session <name>` hält die Sitzung
+auf der Gegenstelle am Leben — der nächste Aufruf hängt sich wieder dran.
+
+Bleibt es bei „Permission denied", liegt es am Schlüssel:
+
+```bash
+ssh -v ugreen exit            # welcher Schlüssel wird angeboten, was sagt der Server
+ssh-copy-id -i ~/.ssh/id_ed25519.pub ugreen   # einmalig, fragt nach dem Passwort
+```
+
+Die Ursache am 21.08.2026 war schlicht, dass der Schlüssel auf dem NAS nie
+hinterlegt war. Zusätzlich zeigte `~/.ssh/config` dort auf `id_rsa` — neuere
+OpenSSH-Versionen lehnen RSA mit SHA-1 zunehmend ab. Beide Hosts benutzen
+jetzt `id_ed25519` plus `IdentitiesOnly yes`; ohne das probiert SSH alle
+Schlüssel durch und läuft womöglich in `MaxAuthTries`, bevor der richtige
+an der Reihe ist.
+
 ### AeroSpace reagiert gar nicht mehr
 
 ```bash
