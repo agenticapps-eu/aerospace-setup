@@ -54,14 +54,22 @@ fi
 echo "Ziel-Reihenfolge (links → rechts): ${target[*]}"
 
 # ── read_order: aktuelle Baumreihenfolge über dfs-index ───────────────
+#
+# NUR die vier Zielfenster zählen. Am 21.08.2026 lagen zusätzlich Droppy
+# und Hazel floatend auf Workspace 2. Der dfs-Durchlauf erfasst auch die,
+# dadurch verschoben sich alle Indizes, der Selection Sort sortierte gegen
+# eine falsche Ist-Liste — und join-with erwischte Claude statt Raindrop.
+# Floatende Fenster stehen ohnehin ausserhalb des Rasters; für die
+# Reihenfolge der gekachelten Spalten sind sie bedeutungslos.
 read_order() {
-  local i out=()
+  local i out=() id
   local cnt; cnt="$("$AERO" list-windows --workspace "$WS" --count 2>/dev/null)"
   for i in $(seq 0 $((cnt-1))); do
     "$AERO" focus --dfs-index "$i" 2>/dev/null || continue
-    out+=("$("$AERO" list-windows --focused --format '%{window-id}' 2>/dev/null)")
+    id="$("$AERO" list-windows --focused --format '%{window-id}' 2>/dev/null)"
+    case " ${target[*]} " in *" $id "*) out+=("$id") ;; esac
   done
-  printf '%s\n' "${out[@]}"
+  [ ${#out[@]} -gt 0 ] && printf '%s\n' "${out[@]}"
 }
 
 # ── read_into_cur: mapfile gibt es in macOS' bash 3.2 nicht ───────────
