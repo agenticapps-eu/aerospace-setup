@@ -212,6 +212,13 @@ parallele Arrays in `_lib.sh`.
 „Google Meet" und im Anruf „Meet – <Terminname> …". Titelregeln also mit
 Anker, nicht mit exakter Gleichheit.
 
+**Ghostty-Splits sind ungefährlich, Tabs nicht.** Nachgemessen am
+21.08.2026: ein Fenster aufgeteilt → Ghostty meldet zwei Terminals, die
+Fensterzahl in AeroSpace bleibt unverändert. Splits liegen INNERHALB eines
+Fensters. Native macOS-Tabs dagegen sind eigenständige Fenster in einer
+Gruppe — daher das Tab-Verbot in `ghostty/config`, und daher gilt es nicht
+für Splits.
+
 **Ghostty liest ZWEI Konfigurationen.** `~/.config/ghostty/config` (hier im
 Repo, nur die Tab-Kürzel) **und**
 `~/Library/Application Support/com.mitchellh.ghostty/config` — dort stehen
