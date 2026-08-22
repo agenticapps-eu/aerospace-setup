@@ -212,6 +212,25 @@ parallele Arrays in `_lib.sh`.
 „Google Meet" und im Anruf „Meet – <Terminname> …". Titelregeln also mit
 Anker, nicht mit exakter Gleichheit.
 
+**Ghostty liest ZWEI Konfigurationen.** `~/.config/ghostty/config` (hier im
+Repo, nur die Tab-Kürzel) **und**
+`~/Library/Application Support/com.mitchellh.ghostty/config` — dort stehen
+Theme, Schrift, Keybinds und die `config-file`-Includes. Die zweite wird
+später gelesen und gewinnt. Wer im Repo etwas einstellt, das dort auch
+steht, wundert sich sonst über die Wirkungslosigkeit.
+
+**`title = …` in Ghostty nagelt den Titel FEST.** Keine Escape-Sequenz
+kommt dann mehr durch. Genau das hat monatelang verhindert, dass sich die
+Ghostty-Fenster unterscheiden liessen — alle hiessen „Oh hello, Ghostty",
+und `relayout.sh` konnte sie deshalb nicht einordnen. Zusätzlich musste
+`shell-integration-features` um `no-title` ergänzt werden, sonst setzt die
+Shell den Titel bei jedem Prompt neu.
+
+**`shell-integration-features` ist keine Liste, die man ersetzt.** Einzelne
+Funktionen schaltet man mit `no-` ab. `= cursor,sudo,path` schaltet die
+nicht genannten still aus — richtig ist
+`= cursor,sudo,no-title,ssh-env,ssh-terminfo,path`.
+
 **TCC schützt Documents, Downloads und den Schreibtisch.** Eine ad-hoc
 signierte App fragt dort nach **jedem** Rebuild erneut nach Erlaubnis, weil
 sich der Signatur-Hash ändert. Deshalb liegt die Konfiguration unter
