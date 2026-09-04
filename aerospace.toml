@@ -4,14 +4,14 @@
 # LG ULTRAWIDE 3440×1440  (oben)        → Workspace 1, und nur 1
 # Odyssey G93SC 5120×1440 (unten, Main) → Workspace 2 · 3 · 4 · 5 · 6 · 7
 #
-#   1 DEV            Ghostty (herdr) │ Obsidian          ← LG, fest
+#   1 DEV            Ghostty (herdr) │ ForkLift          ← LG, fest
 #   2 DISCOVER       Zen │ Claude │ Raindrop ⁄ Reader
 #   3 WORK           Dia │ Slack  │ Google Meet
 #   4 COMMUNICATION  WhatsApp │ Fastmail                 (+ Teams on demand)
 #   5 REMOTE         Ghostty: herdr hermes │ herdr homelab (NAS)
 #   6 TOOLS          Ghostty Terminal │ Chrome   (+ btop, superfile,
 #                    iA Writer, CotEditor on demand)
-#   7 PRODUCTIVITY   ForkLift │ Superlist       ← selten, deshalb hinten
+#   7 PRODUCTIVITY   Obsidian │ Superlist       ← Notizen neben Aufgaben
 #
 # WARUM der LG nur EINEN Workspace hat:
 # AeroSpace parkt Fenster unsichtbarer Workspaces in einer unteren Ecke
@@ -120,6 +120,30 @@ gaps.outer.bottom     = [{ monitor."odyssey" = 16 }, { monitor."lg" = 12 }, 12]
 # Die erste passende Regel gewinnt — Reihenfolge zählt.
 # Regeln mit `&&` müssen VOR der allgemeinen Regel derselben App stehen.
 on-window-detected = [
+  # ╔═ AeroPilot ═══ automatisch verwaltet ═══
+  # In AeroPilot gesetzt: Fenster dieser Apps floaten immer.
+  # Von Hand hier nichts ändern — die App ersetzt den Block ganz.
+  #
+  # check-further-callbacks: floaten UND die Regeln darunter
+  # weiterhin durchlaufen. Ohne das gewönne diese Regel als erste
+  # passende, und die Workspace-Zuordnung fiele aus.
+  { if = 'test %{app-bundle-id} = com.apple.AppStore', check-further-callbacks = true, run = 'layout floating' },
+  { if = 'test %{app-bundle-id} = com.dygmalab.bazecor', check-further-callbacks = true, run = 'layout floating' },
+  { if = 'test %{app-bundle-id} = com.granola.app', check-further-callbacks = true, run = 'layout floating' },
+  { if = 'test %{app-bundle-id} = com.hegenberg.BetterTouchTool', check-further-callbacks = true, run = 'layout floating' },
+  { if = 'test %{app-bundle-id} = com.microsoft.teams2', check-further-callbacks = true, run = 'layout floating' },
+  { if = 'test %{app-bundle-id} = com.runningwithcrayons.Alfred-Preferences', check-further-callbacks = true, run = 'layout floating' },
+  { if = 'test %{app-bundle-id} = iordv.Droppy', check-further-callbacks = true, run = 'layout floating' },
+  { if = 'test %{app-bundle-id} = org.localsend.localsendApp', check-further-callbacks = true, run = 'layout floating' },
+  # ╚═ Ende AeroPilot ═══════════════════════
+
+
+
+
+
+
+
+
 
   # ── Immer floaten: Dialoge, Utilities, Passwortmanager ──────────────
   { if = 'test %{app-bundle-id} = com.1password.1password',     run = 'layout floating' },
@@ -168,7 +192,7 @@ on-window-detected = [
   # Erzeugen — neue Fenster entstehen dort, wo der Fokus ist.
   # Von Hand geöffnete Ghostty-Fenster (cmd-N) landen deshalb im gerade
   # aktiven Workspace. Mit alt-shift-<n> weiterschieben.
-  { if = 'test %{app-bundle-id} = md.obsidian',                 run = 'move-node-to-workspace 1' },
+  { if = 'test %{app-bundle-id} = com.binarynights.ForkLift',   run = 'move-node-to-workspace 1' },
 
   # ── 2 · DISCOVER (Odyssey) ──────────────────────────────────────────
   { if = 'test %{app-bundle-id} = app.zen-browser.zen',         run = 'move-node-to-workspace 2' },
@@ -176,8 +200,8 @@ on-window-detected = [
   { if = 'test %{app-bundle-id} = io.raindrop.macapp',          run = 'move-node-to-workspace 2' },
   { if = 'test %{app-bundle-id} = io.readwise.read',            run = 'move-node-to-workspace 2' },
 
-  # ── 7 · PRODUCTIVITY (Odyssey) — selten, deshalb hinten ─────────────
-  { if = 'test %{app-bundle-id} = com.binarynights.ForkLift',   run = 'move-node-to-workspace 7' },
+  # ── 7 · PRODUCTIVITY (Odyssey) — Notizen neben Aufgaben ─────────────
+  { if = 'test %{app-bundle-id} = md.obsidian',                 run = 'move-node-to-workspace 7' },
   { if = 'test %{app-bundle-id} = com.superlist.superlist',     run = 'move-node-to-workspace 7' },
 
   # ── 4 · COMMUNICATION (Odyssey) ─────────────────────────────────────

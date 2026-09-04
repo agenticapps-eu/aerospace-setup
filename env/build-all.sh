@@ -5,13 +5,13 @@
 # ══════════════════════════════════════════════════════════════════════
 # BUILD ALL — das komplette Setup aufbauen          Hotkey: alt-ctrl-a
 #
-#   LG oben          1 DEV            Ghostty (herdr) │ Obsidian
+#   LG oben          1 DEV            Ghostty (herdr) │ ForkLift
 #   Odyssey unten    2 DISCOVER       Zen │ Claude │ Raindrop ⁄ Reader
 #                    3 WORK           Dia │ Slack │ Google Meet
 #                    4 COMMUNICATION  WhatsApp │ Fastmail
 #                    5 REMOTE         Ghostty: hermes │ homelab (NAS)
 #                    6 TOOLS          Ghostty: Terminal │ Chrome
-#                    7 PRODUCTIVITY   ForkLift │ Superlist
+#                    7 PRODUCTIVITY   Obsidian │ Superlist
 #
 # Einmal morgens. Erster Lauf 30–60 s, weil Electron-Apps langsam sind.
 #

@@ -76,16 +76,32 @@ sh_wrap() { printf "/bin/zsh -lc '%s'" "$1"; }
 # zwischen den Tabs — jeder Tab bekommt seinen Befehl beim Erzeugen.
 ghostty_window() {
   local ws="$1" label="$2"; shift 2
+  local before after id new=""
 
-  # ZIELWORKSPACE ZUERST FOKUSSIEREN. Neue Fenster entstehen im gerade
-  # fokussierten Workspace — damit entfällt das Verschieben danach.
+  # SNAPSHOT VOR DEM ERZEUGEN. Alle Ghostty-Fenster teilen dieselbe
+  # Bundle-ID, die Differenz ist der einzige Weg, das neue zu erkennen.
+  before="$("$AERO" list-windows --monitor all --app-bundle-id "$GHOSTTY_BID" \
+            --format '%{window-id}' 2>/dev/null | tr '\n' ' ')"
+
+  # Zielworkspace fokussieren: neue Fenster entstehen im fokussierten
+  # Workspace, damit sitzt es meistens sofort richtig und es gibt kein
+  # sichtbares Umherspringen.
   #
-  # Vorher habe ich das neue Fenster per Snapshot-Differenz gesucht und
-  # dann verschoben. Das lief in eine Race Condition gegen die
-  # on-window-detected-Regel für Ghostty: die Regel schob das Fenster
-  # nach 1, mein move schob es woandershin, und je nach Reihenfolge
-  # gewann die Regel. Ergebnis waren Fenster auf dem falschen Workspace.
-  # Die Regel ist deshalb aus der Config entfernt.
+  # ABER: darauf allein war Verlass nur in der Theorie. Am 26.08.2026
+  # lag das hermes-Fenster auf 6 statt 5 — build-all.sh ruft nach
+  # ghostty-remote.sh sofort ghostty-tools.sh auf, das Workspace 6
+  # fokussiert. Die SSH-Verbindung zum VPS braucht länger als die zum
+  # NAS im LAN, also materialisierte das Fenster erst, als 6 schon
+  # fokussiert war. Ein `sleep 0.8` ist eine Wette auf die Laufzeit
+  # einer Netzverbindung — und die verliert man irgendwann.
+  #
+  # Deshalb unten: auf das Fenster WARTEN statt blind zu schlafen, und
+  # es danach EXPLIZIT per --window-id setzen.
+  #
+  # Historische Warnung, die nicht mehr gilt: dieser explizite move lief
+  # früher in eine Race Condition gegen die on-window-detected-Regel für
+  # Ghostty. Diese Regel wurde entfernt (siehe aerospace.toml), damit ist
+  # der Weg wieder frei.
   "$AERO" workspace "$ws" 2>/dev/null
   sleep 0.3
 
@@ -113,8 +129,37 @@ end tell"
   osascript -e "$script" >/dev/null 2>&1 \
     || { echo "warn: $label — AppleScript fehlgeschlagen" >&2; return 1; }
 
-  sleep 0.8      # Ghostty braucht einen Moment, bis das Fenster steht
-  echo "$label → Workspace $ws"
+  # ── Auf das neue Fenster warten, bis zu 12 s ───────────────────────
+  # Ersetzt das frühere `sleep 0.8`. Eine feste Wartezeit reicht für
+  # lokale Fenster, aber nicht für eine SSH-Sitzung über das Internet.
+  local i
+  for i in $(seq 1 60); do
+    sleep 0.2
+    after="$("$AERO" list-windows --monitor all --app-bundle-id "$GHOSTTY_BID" \
+             --format '%{window-id}' 2>/dev/null)"
+    new=""
+    for id in $after; do
+      case " $before " in
+        *" $id "*) ;;            # war schon da
+        *) new="$new $id" ;;     # neu
+      esac
+    done
+    [ -n "$new" ] && break
+  done
+
+  if [ -z "$new" ]; then
+    echo "warn: $label — kein neues Ghostty-Fenster erkannt (12 s gewartet)" >&2
+    return 1
+  fi
+
+  # ── Explizit setzen, statt auf den Fokus zu vertrauen ──────────────
+  # Falls das Fenster doch woanders gelandet ist, wird es hier gerade
+  # gerückt. Idempotent: sitzt es schon richtig, passiert nichts.
+  for id in $new; do
+    "$AERO" move-node-to-workspace --window-id "$id" "$ws" 2>/dev/null
+  done
+
+  echo "$label → Workspace $ws (window-id${new})"
 }
 
 # ── ghostty_close_all ─────────────────────────────────────────────────

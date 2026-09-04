@@ -18,6 +18,18 @@
 title="$1"; shift
 printf '\033]0;%s\007' "$title"
 
+# Einmal nachfassen. herdr überschreibt den Titel beim Verbinden mit
+# seiner eigenen Kommandozeile — beobachtet am 26.08.2026, da hiess das
+# Fenster "herdr --remote 72.62.92.185 --session hermes" statt "hermes",
+# während das homelab-Fenster seinen kurzen Namen behielt.
+#
+# Bewusst nur EIN Nachfassen, keine Dauerschleife: ein Skript, das
+# fortwährend mit der Anwendung um den Titel ringt, flackert und
+# überrascht später jemanden. Und es ist reine Lesbarkeit — die
+# Fensterplatzierung hängt seit dem 26.08.2026 an der window-id, nicht
+# mehr am Titel (siehe ghostty_window in _lib.sh).
+( sleep 3; printf '\033]0;%s\007' "$title" ) &
+
 retry=0
 if [ "${1:-}" = "--retry" ]; then retry=1; shift; fi
 
