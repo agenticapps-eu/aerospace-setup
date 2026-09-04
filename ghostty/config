@@ -70,3 +70,169 @@ keybind = ctrl+shift+tab=unbind
 # samt Fehlermeldung, bevor sie jemand lesen konnte.
 # Mit true bleibt das Fenster stehen und zeigt, was passiert ist.
 wait-after-command = true
+
+
+# ══════════════════════════════════════════════════════════════════════
+# HERDR ÜBER HYPER  (2026-09-02)
+# ══════════════════════════════════════════════════════════════════════
+# Hyper = ⇧⌃⌥⌘, von Superkey auf Caps Lock gelegt (hyperFlags 0x1E0000).
+# In Ghostty-Notation heisst das: ctrl+alt+shift+super.
+#
+# WARUM DER UMWEG ÜBER GHOSTTY UND NICHT DIREKT IN HERDR:
+# Hyper enthält ⌘. ⌘-Kombinationen erreichen auf macOS niemals die pty —
+# macOS bzw. die App fängt sie vorher ab. herdr könnte hyper+← also gar
+# nicht sehen, egal was in seiner config.toml steht. Ghostty fängt den
+# Anschlag deshalb ab und TIPPT die Prefix-Sequenz für dich:
+# \x02 ist ctrl+b, also herdr's Prefix. Aus hyper+← wird prefix+h.
+# Für die Finger prefix-frei, auf der Leitung prefix-basiert.
+#
+# DAS ERZEUGT KEINE GHOSTTY-TABS UND KEINE GHOSTTY-SPLITS.
+# `text:` schreibt nur Bytes in das laufende Programm. Die nativen Tabs
+# weiter oben bleiben abgeschaltet — die beiden Dinge haben nichts
+# miteinander zu tun.
+#
+# ES FUNKTIONIERT AUCH ÜBER SSH: die Bytes landen in der Remote-Sitzung,
+# dieselbe Taste steuert also herdr auf hermes und ugreen (Workspace 5).
+#
+# NEBENWIRKUNG, bewusst in Kauf genommen: die Bindings gelten in JEDEM
+# Ghostty-Fenster, auch im reinen Terminal auf Workspace 6. Dort tippt
+# hyper+← ein ctrl+b (Cursor ein Zeichen zurück) und ein h. Harmlos.
+#
+# WENN EIN ANSCHLAG NICHTS TUT: ihn hat vorher jemand anderes geschluckt.
+# Verdächtige in dieser Reihenfolge: BetterTouchTool (hat bereits
+# hyper+1/3/4/5 als Launcher belegt), Raycast, Alfred, Superkey selbst.
+
+# ── EBENE 3 · hyper + Pfeil = PANE IM HERDR ───────────────────────────
+# Ebene 1 ist ctrl+Pfeil (AeroSpace-Workspace), Ebene 2 alt+Pfeil
+# (Fenster im Workspace). Ebene 3 geht eine Stufe tiefer: in das
+# Terminalfenster hinein, zwischen den herdr-Panes.
+keybind = ctrl+alt+shift+super+arrow_left=text:\x02h
+keybind = ctrl+alt+shift+super+arrow_down=text:\x02j
+keybind = ctrl+alt+shift+super+arrow_up=text:\x02k
+keybind = ctrl+alt+shift+super+arrow_right=text:\x02l
+
+# ── Panes: teilen, schliessen, zoomen ─────────────────────────────────
+# KEIN shift-Gegenstück möglich: Hyper IST bereits shift. Deshalb liegt
+# „Pane tauschen" (prefix+shift+h/j/k/l) weiterhin auf dem Prefix, und
+# die zweite Teilungsrichtung bekommt einen eigenen Buchstaben statt
+# hyper+shift+d.
+keybind = ctrl+alt+shift+super+d=text:\x02v
+keybind = ctrl+alt+shift+super+s=text:\x02-
+keybind = ctrl+alt+shift+super+w=text:\x02x
+keybind = ctrl+alt+shift+super+z=text:\x02z
+keybind = ctrl+alt+shift+super+r=text:\x02r
+
+# ── Tabs und Workspaces ───────────────────────────────────────────────
+# hyper+t neuer Tab, hyper+q Tab schliessen (= prefix+shift+w, also
+# Grossbuchstabe W auf der Leitung).
+keybind = ctrl+alt+shift+super+t=text:\x02t
+keybind = ctrl+alt+shift+super+q=text:\x02W
+keybind = ctrl+alt+shift+super+n=text:\x02n
+
+# ── Navigation und Hilfe ──────────────────────────────────────────────
+keybind = ctrl+alt+shift+super+g=text:\x02g
+keybind = ctrl+alt+shift+super+b=text:\x02b
+keybind = ctrl+alt+shift+super+slash=text:\x02?
+
+# ── Tab n direkt: cmd+shift+1..9 ──────────────────────────────────────
+# WICHTIG ZUM VERSTÄNDNIS DER DATEIREIHENFOLGE:
+# Ghostty liest auf macOS ZWEI Configs, diese hier zuerst, danach
+#   ~/Library/Application Support/com.mitchellh.ghostty/config
+# und die zieht per `config-file` noch
+#   ~/.config/native-shortcuts-herd/ghostty.conf
+# hinterher. Die zuletzt gelesene Zeile gewinnt. Alles, was
+# native-shortcuts-herd belegt, ist von hier aus NICHT überschreibbar.
+#
+# Belegt ist dort bereits: cmd+t/n/w/k/l, ctrl+tab, ctrl+alt+tab und
+# cmd+1..9. cmd+1..9 springt zu herdr-WORKSPACES (\x1b[49;6u ist die
+# CSI-u-Kodierung von ctrl+shift+1, passend zu keys.indexed.workspaces).
+# Ein eigener cmd+1..9-Block hier wäre also tot gewesen.
+#
+# Deshalb liegen TABS eine Stufe daneben, was auch besser liest:
+#   cmd+Ziffer        → Workspace n   (das Projekt)
+#   cmd+shift+Ziffer  → Tab n         (darin)
+#
+# WARUM NICHT hyper+1..9: BetterTouchTool hat hyper+1, hyper+3, hyper+4
+# und hyper+5 schon als Launcher belegt (vier Einträge im btt_data_store
+# mit Modifier 1966080). Ein halb belegter Ziffernblock wäre schlimmer
+# als ein anderer Modifier.
+keybind = super+shift+1=text:\x021
+keybind = super+shift+2=text:\x022
+keybind = super+shift+3=text:\x023
+keybind = super+shift+4=text:\x024
+keybind = super+shift+5=text:\x025
+keybind = super+shift+6=text:\x026
+keybind = super+shift+7=text:\x027
+keybind = super+shift+8=text:\x028
+keybind = super+shift+9=text:\x029
+# Physische Varianten dazu: auf EurKEY/US liegt auf shift+1 ein „!".
+# Ghostty löst `super+shift+1` zwar über die ungeshiftete Taste auf, aber
+# native-shortcuts-herd schreibt beide Formen — hier derselbe Gürtel.
+keybind = super+shift+digit_1=text:\x021
+keybind = super+shift+digit_2=text:\x022
+keybind = super+shift+digit_3=text:\x023
+keybind = super+shift+digit_4=text:\x024
+keybind = super+shift+digit_5=text:\x025
+keybind = super+shift+digit_6=text:\x026
+keybind = super+shift+digit_7=text:\x027
+keybind = super+shift+digit_8=text:\x028
+keybind = super+shift+digit_9=text:\x029
+
+# ── Zwischen den herdr-Bereichen wandern (2026-09-02, Erweiterung) ─────
+# herdr hat drei Achsen nebeneinander: Spaces (= Verzeichnisse ⁄ Projekte),
+# Tabs darin, und die Agent-Liste in der Sidebar. Jede bekommt ein
+# Tastenpaar, die Ziffern gehören den Spaces.
+#
+# Rechts steht, was auf der Leitung ankommt. Die prefix+BUCHSTABE-Ziele
+# sind in ~/.config/herdr/config.toml definiert und dort als reine
+# Draht-Ziele markiert — sie sind willkürlich, nur „war noch frei".
+
+# Spaces ⁄ Verzeichnisse — zurück und vor
+keybind = ctrl+alt+shift+super+minus=text:\x02a
+keybind = ctrl+alt+shift+super+equal=text:\x02d
+
+# Tabs — zurück und vor
+keybind = ctrl+alt+shift+super+bracket_left=text:\x02y
+keybind = ctrl+alt+shift+super+bracket_right=text:\x02u
+
+# Agents — zurück und vor
+keybind = ctrl+alt+shift+super+semicolon=text:\x02i
+keybind = ctrl+alt+shift+super+apostrophe=text:\x02m
+
+# Panes durchblättern (prefix+tab), zusätzlich zu hyper+Pfeil
+keybind = ctrl+alt+shift+super+tab=text:\x02\t
+
+# Die beiden Auswahlflächen: Picker für Spaces, Navigator über alles
+keybind = ctrl+alt+shift+super+space=text:\x02w
+
+# ── Space n direkt: hyper+1..9 ────────────────────────────────────────
+# Gesendet wird die CSI-u-Kodierung von ctrl+shift+1..9 — genau das, was
+# `keys.indexed.workspaces = "ctrl+shift"` in herdr erwartet, und genau
+# das Format, das native-shortcuts-herd für cmd+1..9 schon benutzt.
+# Also erprobt, kein neuer Mechanismus.
+#
+# Voraussetzung: die vier BetterTouchTool-Kürzel auf hyper+1, +3, +4, +5
+# sind entfernt (Elemente des circular-example-menu, Aktion
+# „Spezifisches Element aus Zwischenablagenmanager einfügen"). Die
+# Menü-Slices selbst bleiben, nur ihr Tastenkürzel ist weg.
+#
+# cmd+1..9 macht aus native-shortcuts-herd heraus WEITERHIN dasselbe —
+# das ist Absicht, ein zweiter Weg schadet nicht.
+keybind = ctrl+alt+shift+super+1=text:\x1b[49;6u
+keybind = ctrl+alt+shift+super+2=text:\x1b[50;6u
+keybind = ctrl+alt+shift+super+3=text:\x1b[51;6u
+keybind = ctrl+alt+shift+super+4=text:\x1b[52;6u
+keybind = ctrl+alt+shift+super+5=text:\x1b[53;6u
+keybind = ctrl+alt+shift+super+6=text:\x1b[54;6u
+keybind = ctrl+alt+shift+super+7=text:\x1b[55;6u
+keybind = ctrl+alt+shift+super+8=text:\x1b[56;6u
+keybind = ctrl+alt+shift+super+9=text:\x1b[57;6u
+keybind = ctrl+alt+shift+super+digit_1=text:\x1b[49;6u
+keybind = ctrl+alt+shift+super+digit_2=text:\x1b[50;6u
+keybind = ctrl+alt+shift+super+digit_3=text:\x1b[51;6u
+keybind = ctrl+alt+shift+super+digit_4=text:\x1b[52;6u
+keybind = ctrl+alt+shift+super+digit_5=text:\x1b[53;6u
+keybind = ctrl+alt+shift+super+digit_6=text:\x1b[54;6u
+keybind = ctrl+alt+shift+super+digit_7=text:\x1b[55;6u
+keybind = ctrl+alt+shift+super+digit_8=text:\x1b[56;6u
+keybind = ctrl+alt+shift+super+digit_9=text:\x1b[57;6u

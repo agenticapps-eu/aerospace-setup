@@ -1,0 +1,9 @@
+{
+  "_comment": "Originalzustand der vier BTT-Kurzbefehle auf hyper+1/3/4/5, entfernt am 2026-09-02, damit hyper+1..9 an herdr-Spaces gehen kann. Es sind Elemente des circular-example-menu mit der Aktion 'Spezifisches Element aus Zwischenablagenmanager einfuegen'. Nur das Tastenkuerzel wurde entfernt, die Menue-Slices sind unberuehrt. Wiederherstellen: fuer jede UUID update_btt_trigger mit dem jeweiligen json-Block.",
+  "restore": [
+    {"uuid": "A4FC1506-4E30-4206-AD73-19658F19225E", "key": "hyper+1", "json": {"BTTShortcutKeyCode": 18, "BTTShortcutModifierKeys": 1966080, "BTTShortcutAdvancedModifierKeys": "1966123", "BTTShortcutKeyboardType": 1679}},
+    {"uuid": "E7E59A32-97AD-47EF-ADA0-1EB2F1D3CFB0", "key": "hyper+3", "json": {"BTTShortcutKeyCode": 20, "BTTShortcutModifierKeys": 1966080, "BTTShortcutAdvancedModifierKeys": "1966123", "BTTShortcutKeyboardType": 1679}},
+    {"uuid": "94898DB6-5C24-4A11-AFFD-03EEAEFB830C", "key": "hyper+4", "json": {"BTTShortcutKeyCode": 21, "BTTShortcutModifierKeys": 1966080, "BTTShortcutAdvancedModifierKeys": "1966123", "BTTShortcutKeyboardType": 1679}},
+    {"uuid": "F50F01B5-9FFE-4820-A38B-E06B66A73A4A", "key": "hyper+5", "json": {"BTTShortcutKeyCode": 23, "BTTShortcutModifierKeys": 1966080, "BTTShortcutAdvancedModifierKeys": "1966123", "BTTShortcutKeyboardType": 1679}}
+  ]
+}

@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="de">
+<meta charset="utf-8">
+<title>AeroSpace + herdr — Cheatsheet</title>
+<!--
+  Quelle für AeroSpace-herdr-Cheatsheet.pdf. Neu bauen:
+    "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome" \
+      --headless --disable-gpu --no-pdf-header-footer \
+      --print-to-pdf=AeroSpace-herdr-Cheatsheet.pdf cheatsheet-herdr-source.html
+  Zwei Seiten A4 quer. Flexbox statt Grid (bleibt WeasyPrint-tauglich).
+-->
+<style>
+  @page { size: A4 landscape; margin: 10mm 11mm; }
+  * { box-sizing: border-box; }
+  body {
+    font-family: -apple-system, "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 9.5pt; line-height: 1.36; color: #16181d; margin: 0;
+    -webkit-print-color-adjust: exact; print-color-adjust: exact;
+  }
+  h1 { font-size: 17pt; margin: 0 0 1mm; letter-spacing: -.2pt; }
+  h1 span { font-weight: 400; color: #6b7280; font-size: 11.5pt; }
+  h2 {
+    font-size: 8.6pt; text-transform: uppercase; letter-spacing: .6pt;
+    color: #6b7280; margin: 0 0 1.6mm; padding-bottom: .8mm;
+    border-bottom: .4pt solid #d8dbe0; font-weight: 700;
+  }
+  .sub { color: #6b7280; font-size: 8.6pt; margin: 0 0 3mm; }
+  .cols { display: flex; gap: 5mm; }
+  .col { flex: 1; }
+  .box { margin-bottom: 2.6mm; break-inside: avoid; }
+  table { width: 100%; border-collapse: collapse; }
+  td { padding: 0.58mm 0; vertical-align: top; }
+  td.k { width: 42mm; white-space: nowrap; }
+  kbd {
+    font-family: "SF Mono", Menlo, Consolas, monospace; font-size: 8.3pt;
+    background: #f1f3f6; border: .4pt solid #d8dbe0; border-radius: 2pt;
+    padding: .3mm 1mm; white-space: nowrap;
+  }
+  kbd.hy { background: #ede9fe; border-color: #c4b5fd; }
+  kbd.cm { background: #e0f2fe; border-color: #a5d8f3; }
+  code, .mono { font-family: "SF Mono", Menlo, Consolas, monospace; font-size: 8.3pt; }
+
+  /* Ebenen-Diagramm */
+  .lv { display: flex; gap: 3mm; margin-bottom: 3.5mm; }
+  .lv > div {
+    flex: 1; border: .5pt solid #c8ccd3; border-radius: 3pt;
+    padding: 2mm 2.6mm; font-size: 8.4pt;
+  }
+  .lv b { display: block; font-size: 9pt; margin-bottom: .8mm; }
+  .lv em { color: #6b7280; font-style: normal; display: block; margin-top: .8mm; }
+  .l1 { background: #f6f8fa; }
+  .l2 { background: #eef4ff; }
+  .l3 { background: #f5f2ff; }
+
+  /* Monitor-Diagramm */
+  .mon { border: .5pt solid #c8ccd3; border-radius: 3pt; margin-bottom: 2mm; }
+  .mon .cap {
+    background: #f1f3f6; padding: 1.4mm 2.4mm; font-size: 8.2pt; color: #4b5563;
+    border-bottom: .4pt solid #d8dbe0; border-radius: 3pt 3pt 0 0;
+  }
+  .ws { display: flex; }
+  .ws div {
+    flex: 1; padding: 1.8mm 2.4mm; border-right: .4pt dashed #d8dbe0;
+    font-size: 8.3pt;
+  }
+  .ws div:last-child { border-right: 0; }
+  .ws b { display: block; font-size: 8.6pt; letter-spacing: .3pt; }
+  .ws em { color: #6b7280; font-style: normal; }
+  .lg  { background: #eef4ff; }
+  .od  { background: #f6f8fa; }
+
+  .note {
+    background: #fff8e6; border-left: 1.6pt solid #e3a008;
+    padding: 2.2mm 3mm; margin-bottom: 3.5mm; font-size: 8.6pt;
+  }
+  .note b { color: #92400e; }
+  .warn { background: #fdeeee; border-left-color: #dc2626; }
+  .warn b { color: #991b1b; }
+  .foot { color: #9aa0a8; font-size: 7.6pt; margin-top: 2mm; }
+  .brk { break-before: page; }
+</style>
+
+<h1>AeroSpace + herdr <span>— drei Ebenen, eine Handbewegung</span></h1>
+<p class="sub">
+  LG ULTRAWIDE 3440×1440 (oben) über Odyssey G93SC 5120×1440 (unten, Main)
+  · AeroSpace 0.21.3 · Ghostty 1.3.1 · herdr 0.7.4 · Stand 02.09.2026
+</p>
+
+<div class="lv">
+  <div class="l1">
+    <b>Ebene 1 · <kbd>ctrl</kbd> + Pfeil</b>
+    Workspace und Monitor
+    <em>Der ganze Bildschirm wechselt.</em>
+  </div>
+  <div class="l2">
+    <b>Ebene 2 · <kbd>alt</kbd> + Pfeil</b>
+    Fenster im Workspace
+    <em>Innerhalb dessen, was du gerade siehst.</em>
+  </div>
+  <div class="l3">
+    <b>Ebene 3 · <kbd class="hy">hyper</kbd> + Pfeil</b>
+    Pane im herdr
+    <em>Ins Terminalfenster hinein. Caps&nbsp;Lock = ⇧⌃⌥⌘ (Superkey).</em>
+  </div>
+</div>
+
+<div class="mon">
+  <div class="cap">LG ULTRAWIDE — oben · genau <b>ein</b> Workspace, damit nichts nach unten durchblitzt</div>
+  <div class="ws lg">
+    <div><b>1 · DEV</b><em>Ghostty (herdr lokal) │ ForkLift</em></div>
+  </div>
+</div>
+
+<div class="mon">
+  <div class="cap">Odyssey G93SC — unten · alles Umschaltbare</div>
+  <div class="ws od">
+    <div><b>2 · DISCOVER</b><em>Zen │ Claude │ Raindrop ⁄ Reader</em></div>
+    <div><b>3 · WORK</b><em>Dia │ Slack │ Google Meet</em></div>
+    <div><b>4 · COMM</b><em>WhatsApp │ Fastmail<br>(+ Teams n. Bedarf)</em></div>
+    <div><b>5 · REMOTE</b><em>Ghostty: hermes │ homelab</em></div>
+    <div><b>6 · TOOLS</b><em>Ghostty Terminal │ Chrome</em></div>
+    <div><b>7 · PROD</b><em>Obsidian │ Superlist</em></div>
+  </div>
+</div>
+
+<div class="cols">
+  <div class="col">
+    <div class="box">
+      <h2>Ebene 1 · ctrl = Workspace &amp; Monitor</h2>
+      <table>
+        <tr><td class="k"><kbd>ctrl</kbd> <kbd>←</kbd> <kbd>→</kbd></td><td>Workspace wechseln (auf diesem Monitor)</td></tr>
+        <tr><td class="k"><kbd>ctrl</kbd> <kbd>↑</kbd> <kbd>↓</kbd></td><td>Monitor wechseln — ↑ LG, ↓ Odyssey</td></tr>
+        <tr><td class="k"><kbd>ctrl</kbd><kbd>⇧</kbd> Pfeil</td><td>dasselbe, Fenster mitnehmen</td></tr>
+        <tr><td class="k"><kbd>alt</kbd> <kbd>1</kbd>…<kbd>7</kbd></td><td>Workspace direkt</td></tr>
+        <tr><td class="k"><kbd>alt</kbd><kbd>⇧</kbd> <kbd>1</kbd>…<kbd>7</kbd></td><td>Fenster dorthin, Fokus geht mit</td></tr>
+        <tr><td class="k"><kbd>alt</kbd> <kbd>⇥</kbd></td><td>zurück zum vorherigen Workspace</td></tr>
+      </table>
+    </div>
+
+    <div class="box">
+      <h2>Ebene 2 · alt = Fenster im Workspace</h2>
+      <table>
+        <tr><td class="k"><kbd>alt</kbd> Pfeil</td><td>Fenster fokussieren</td></tr>
+        <tr><td class="k"><kbd>alt</kbd><kbd>⇧</kbd> Pfeil</td><td>Fenster im Raster umsortieren</td></tr>
+        <tr><td class="k"><kbd>alt</kbd><kbd>f</kbd></td><td>Vollbild</td></tr>
+        <tr><td class="k"><kbd>alt</kbd><kbd>⇧</kbd><kbd>f</kbd></td><td>aus dem Raster lösen ⁄ zurück</td></tr>
+        <tr><td class="k"><kbd>alt</kbd><kbd>b</kbd></td><td>Raster gleichmässig verteilen</td></tr>
+        <tr><td class="k"><kbd>alt</kbd><kbd>−</kbd> <kbd>alt</kbd><kbd>=</kbd></td><td>Grösse ±100 px</td></tr>
+        <tr><td class="k"><kbd>alt</kbd><kbd>⇧</kbd><kbd>−</kbd> ⁄ <kbd>=</kbd></td><td>Spalte teilen ⁄ zusammenfassen</td></tr>
+        <tr><td class="k"><kbd>alt</kbd><kbd>⇧</kbd><kbd>;</kbd></td><td>Service-Modus · <kbd>esc</kbd> zurück, <kbd>r</kbd> Baum platt</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="col">
+    <div class="box">
+      <h2>Aufbau — einmal morgens</h2>
+      <table>
+        <tr><td class="k"><kbd>alt</kbd><kbd>ctrl</kbd><kbd>a</kbd></td><td>komplettes Setup bauen, beide Monitore</td></tr>
+        <tr><td class="k"><kbd>alt</kbd><kbd>ctrl</kbd><kbd>1</kbd></td><td>Ghostty · herdr lokal</td></tr>
+        <tr><td class="k"><kbd>alt</kbd><kbd>ctrl</kbd><kbd>5</kbd></td><td>Ghostty · herdr hermes ⁄ homelab</td></tr>
+        <tr><td class="k"><kbd>alt</kbd><kbd>ctrl</kbd><kbd>6</kbd></td><td>Ghostty · Terminal</td></tr>
+        <tr><td class="k"><kbd>alt</kbd><kbd>ctrl</kbd><kbd>2</kbd></td><td>Workspace 2 exakt wiederherstellen</td></tr>
+        <tr><td class="k"><kbd>alt</kbd><kbd>ctrl</kbd><kbd>r</kbd></td><td>nur die Layouts richten</td></tr>
+      </table>
+    </div>
+
+    <div class="note">
+      <b>Warum der LG nur einen Workspace hat.</b>
+      AeroSpace parkt Fenster unsichtbarer Workspaces in einer unteren Ecke
+      ihres Monitors. Unter dem LG liegt echter Bildschirm, geparkte Fenster
+      wurden dort als 896&nbsp;px breiter Streifen sichtbar. Mit einem einzigen
+      Workspace oben ist nie etwas versteckt.
+    </div>
+
+    <div class="note warn">
+      <b>Tastaturlayout.</b> AeroSpace liest Tasten immer als physische
+      QWERTY-Positionen. Auf der deutschen Belegung liegt
+      <code>alt-slash</code> („Ausrichtung kippen") auf <kbd>alt</kbd><kbd>−</kbd>
+      — ein Anschlag, ganzer Workspace gedreht, kein Rückgängig.
+      Zurück mit <kbd>alt</kbd><kbd>ctrl</kbd><kbd>2</kbd> bzw.
+      <kbd>alt</kbd><kbd>b</kbd>.
+    </div>
+  </div>
+</div>
+
+<h1 class="brk">herdr <span>— hyper ist der herdr-Modifier</span></h1>
+<p class="sub">
+  <kbd class="hy">hyper</kbd> = Caps&nbsp;Lock (Superkey) = ⇧⌃⌥⌘ · vier Achsen:
+  <b>Space</b> (Verzeichnis) › <b>Tab</b> › <b>Pane</b>, quer dazu die <b>Agent</b>-Liste ·
+  <kbd class="hy">hyper</kbd><kbd>/</kbd> zeigt jederzeit alle aktiven Bindings
+</p>
+
+<div class="cols">
+  <div class="col">
+    <div class="box">
+      <h2>Panes — hyper</h2>
+      <table>
+        <tr><td class="k"><kbd class="hy">hyper</kbd> Pfeil</td><td>Pane fokussieren</td></tr>
+        <tr><td class="k"><kbd class="hy">hyper</kbd><kbd>d</kbd></td><td>Split nach rechts (nebeneinander)</td></tr>
+        <tr><td class="k"><kbd class="hy">hyper</kbd><kbd>s</kbd></td><td>Split nach unten (gestapelt)</td></tr>
+        <tr><td class="k"><kbd class="hy">hyper</kbd><kbd>w</kbd></td><td>Pane schliessen</td></tr>
+        <tr><td class="k"><kbd class="hy">hyper</kbd><kbd>z</kbd></td><td>Pane zoomen ⁄ zurück</td></tr>
+        <tr><td class="k"><kbd class="hy">hyper</kbd><kbd>r</kbd></td><td>Resize-Modus</td></tr>
+        <tr><td class="k"><kbd class="hy">hyper</kbd> <kbd>⇥</kbd></td><td>Panes durchblättern</td></tr>
+        <tr><td class="k"><kbd class="hy">hyper</kbd><kbd>b</kbd></td><td>Sidebar ein ⁄ aus</td></tr>
+      </table>
+    </div>
+
+    <div class="box">
+      <h2>Die drei Achsen — jede ein Tastenpaar</h2>
+      <table>
+        <tr><td class="k"><kbd class="hy">hyper</kbd><kbd>1</kbd>…<kbd>9</kbd></td><td><b>Space n</b> direkt (Verzeichnis ⁄ Projekt)</td></tr>
+        <tr><td class="k"><kbd class="hy">hyper</kbd><kbd>−</kbd> ⁄ <kbd>=</kbd></td><td>Space zurück ⁄ vor</td></tr>
+        <tr><td class="k"><kbd class="hy">hyper</kbd><kbd>[</kbd> ⁄ <kbd>]</kbd></td><td>Tab zurück ⁄ vor</td></tr>
+        <tr><td class="k"><kbd class="hy">hyper</kbd><kbd>;</kbd> ⁄ <kbd>'</kbd></td><td>Agent zurück ⁄ vor (Sidebar)</td></tr>
+        <tr><td class="k"><kbd class="hy">hyper</kbd> <kbd>␣</kbd></td><td>Space-Picker</td></tr>
+        <tr><td class="k"><kbd class="hy">hyper</kbd><kbd>g</kbd></td><td>Navigator — springt über <em>alle</em> Achsen</td></tr>
+        <tr><td class="k"><kbd class="cm">⌘</kbd><kbd>⇧</kbd><kbd>1</kbd>…<kbd>9</kbd></td><td>Tab n direkt</td></tr>
+      </table>
+      <p class="foot">Merkhilfe: <b>Ziffer = Ort</b> — genau wie
+      <kbd>alt</kbd><kbd>1</kbd>…<kbd>7</kbd> in AeroSpace. Klammern gehen
+      seitwärts durch Tabs, Semikolon-Paar durch Agents.</p>
+    </div>
+
+    <div class="box">
+      <h2>Anlegen, schliessen, umbenennen</h2>
+      <table>
+        <tr><td class="k"><kbd class="hy">hyper</kbd><kbd>t</kbd> · <kbd class="cm">⌘</kbd><kbd>t</kbd></td><td>neuer Tab</td></tr>
+        <tr><td class="k"><kbd class="hy">hyper</kbd><kbd>q</kbd> · <kbd class="cm">⌘</kbd><kbd>w</kbd></td><td>Tab schliessen</td></tr>
+        <tr><td class="k"><kbd class="hy">hyper</kbd><kbd>n</kbd> · <kbd class="cm">⌘</kbd><kbd>n</kbd></td><td>neuer Space</td></tr>
+        <tr><td class="k"><kbd class="cm">⌘</kbd><kbd>l</kbd> ⁄ <kbd class="cm">⌘</kbd><kbd>k</kbd></td><td>Tab ⁄ Space umbenennen</td></tr>
+        <tr><td class="k"><kbd>ctrl</kbd> <kbd>⇥</kbd> ⁄ <kbd>ctrl</kbd><kbd>alt</kbd> <kbd>⇥</kbd></td><td>Tab ⁄ Space durchblättern (ohne Ghostty)</td></tr>
+      </table>
+    </div>
+
+      <p class="foot">Ghostty liest drei Configs, die letzte gewinnt:
+      <code>~/.config/ghostty/config</code> (die hyper-Bindings) →
+      <code>…ghostty/config</code> → <code>…native-shortcuts-herd/ghostty.conf</code>.</p>
+
+  </div>
+
+  <div class="col">
+    <div class="box">
+      <h2>Was auf dem Prefix bleibt <span class="mono">(ctrl+b, dann …)</span></h2>
+      <table>
+        <tr><td class="k"><kbd>⇧</kbd><kbd>h</kbd><kbd>j</kbd><kbd>k</kbd><kbd>l</kbd></td><td>Panes <b>tauschen</b> statt nur fokussieren</td></tr>
+        <tr><td class="k"><kbd>[</kbd></td><td>Copy-Modus · <kbd>v</kbd> markieren, <kbd>y</kbd> kopieren, <kbd>q</kbd> raus</td></tr>
+        <tr><td class="k"><kbd>e</kbd></td><td>Scrollback im <code>$EDITOR</code> öffnen</td></tr>
+        <tr><td class="k"><kbd>⇧</kbd><kbd>p</kbd> ⁄ <kbd>⇧</kbd><kbd>d</kbd></td><td>Pane umbenennen ⁄ Workspace schliessen</td></tr>
+        <tr><td class="k"><kbd>⇧</kbd><kbd>g</kbd></td><td>Git-Worktree anlegen</td></tr>
+        <tr><td class="k"><kbd>f</kbd> ⁄ <kbd>⇧</kbd><kbd>f</kbd></td><td>File-Viewer im Split ⁄ im Tab</td></tr>
+        <tr><td class="k"><kbd>p</kbd> · <kbd>s</kbd></td><td>Plugin-Manager · Einstellungen</td></tr>
+        <tr><td class="k"><kbd>q</kbd></td><td>ablösen, alles läuft weiter</td></tr>
+        <tr><td class="k"><kbd>⇧</kbd><kbd>r</kbd></td><td>config.toml neu laden</td></tr>
+      </table>
+      <p class="foot">Warum Tauschen nicht auf hyper liegt: hyper <em>ist</em>
+      bereits ⇧ — ein hyper+⇧+Pfeil gibt es nicht.</p>
+    </div>
+
+    <div class="note">
+      <b>Warum hyper über Ghostty läuft.</b> Hyper enthält ⌘, und
+      ⌘-Kombinationen erreichen auf macOS nie die pty. herdr könnte
+      <kbd class="hy">hyper</kbd><kbd>←</kbd> also gar nicht sehen. Ghostty fängt den
+      Anschlag ab und <em>tippt</em> die Prefix-Sequenz (<code>\x02</code> = ctrl+b).
+      Für die Finger prefix-frei, auf der Leitung prefix-basiert — und es
+      funktioniert deshalb auch über SSH auf hermes und homelab.
+    </div>
+
+    <div class="note warn">
+      <b>Erste Hilfe: ein Anschlag tut nichts.</b> Dann hat ihn vorher jemand
+      geschluckt. Verdächtige: Raycast, Alfred, Superkey, BetterTouchTool.
+      <kbd>alt</kbd><kbd>1</kbd>…<kbd>7</kbd> gehört immer AeroSpace und
+      erreicht herdr nie. Am 02.09.2026 wurden vier BTT-Kürzel auf
+      <kbd class="hy">hyper</kbd><kbd>1</kbd><kbd>3</kbd><kbd>4</kbd><kbd>5</kbd>
+      entfernt (Zwischenablage-Einfügen im Radialmenü) — die Menü-Slices
+      selbst gibt es weiter, nur ohne Tastenkürzel.
+      Wiederherstellen: <code>btt-hyper-shortcuts-undo.json</code> im
+      aerospace-setup-Repo.
+    </div>
+
+    <div class="box">
+      <h2>Zwei Split-Systeme, nicht verwechseln</h2>
+      <table>
+        <tr><td class="k"><kbd class="cm">⌘</kbd><kbd>d</kbd> ⁄ <kbd class="cm">⌘</kbd><kbd>⇧</kbd><kbd>d</kbd></td><td><b>Ghostty</b>-Split — kennt herdr nicht</td></tr>
+        <tr><td class="k"><kbd class="hy">hyper</kbd><kbd>d</kbd> ⁄ <kbd class="hy">hyper</kbd><kbd>s</kbd></td><td><b>herdr</b>-Split — der, den du willst</td></tr>
+      </table>
+    </div>
+
+    <div class="box">
+      <h2>Fallback — ctrl+alt, spricht herdr direkt an</h2>
+      <table>
+        <tr><td class="k"><kbd>ctrl</kbd><kbd>alt</kbd> <kbd>h</kbd><kbd>j</kbd><kbd>k</kbd><kbd>l</kbd></td><td>Pane fokussieren (←↓↑→)</td></tr>
+        <tr><td class="k"><kbd>ctrl</kbd><kbd>alt</kbd><kbd>d</kbd> ⁄ <kbd>⇧</kbd><kbd>d</kbd> ⁄ <kbd>x</kbd> ⁄ <kbd>z</kbd></td><td>Split rechts ⁄ unten, schliessen, zoomen</td></tr>
+      </table>
+      <p class="foot">Überlebt, was den bequemen Weg killt: Superkey aus,
+      anderes Terminal, fremder Rechner.</p>
+    </div>
+
+  </div>
+</div>
