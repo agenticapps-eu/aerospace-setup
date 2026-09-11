@@ -127,6 +127,8 @@ on-window-detected = [
   # check-further-callbacks: floaten UND die Regeln darunter
   # weiterhin durchlaufen. Ohne das gewönne diese Regel als erste
   # passende, und die Workspace-Zuordnung fiele aus.
+  { if = 'test %{app-bundle-id} = com.BZG.CoherenceX5', check-further-callbacks = true, run = 'layout floating' },
+  { if = 'test %{app-bundle-id} = com.BZG.CoherenceX6', check-further-callbacks = true, run = 'layout floating' },
   { if = 'test %{app-bundle-id} = com.apple.AppStore', check-further-callbacks = true, run = 'layout floating' },
   { if = 'test %{app-bundle-id} = com.dygmalab.bazecor', check-further-callbacks = true, run = 'layout floating' },
   { if = 'test %{app-bundle-id} = com.granola.app', check-further-callbacks = true, run = 'layout floating' },
@@ -136,6 +138,23 @@ on-window-detected = [
   { if = 'test %{app-bundle-id} = iordv.Droppy', check-further-callbacks = true, run = 'layout floating' },
   { if = 'test %{app-bundle-id} = org.localsend.localsendApp', check-further-callbacks = true, run = 'layout floating' },
   # ╚═ Ende AeroPilot ═══════════════════════
+
+  # ── Hilfsfenster: floaten, wo sie aufgehen ──────────────────────────
+  # BEWUSST AUSSERHALB des AeroPilot-Blocks. Die App ersetzt ihren Block
+  # komplett; was dort von Hand hineingeschrieben wird, ist beim nächsten
+  # Speichern weg.
+  #
+  # Kein `check-further-callbacks` und keine Workspace-Zuordnung: diese
+  # Fenster sollen genau dort floaten, wo sie geöffnet werden. Ein
+  # Finder-Fenster, das man aus einem Workspace heraus aufmacht, gehört
+  # in diesen Workspace — nicht in einen fest zugewiesenen anderen.
+  { if = 'test %{app-bundle-id} = com.apple.finder',             run = 'layout floating' },
+  { if = 'test %{app-bundle-id} = com.obsbot.OBSBOT_Center',     run = 'layout floating' },
+  { if = 'test %{app-bundle-id} = com.apple.systempreferences',  run = 'layout floating' },
+
+
+
+
 
 
 
@@ -199,6 +218,9 @@ on-window-detected = [
   { if = 'test %{app-bundle-id} = com.anthropic.claudefordesktop', run = 'move-node-to-workspace 2' },
   { if = 'test %{app-bundle-id} = io.raindrop.macapp',          run = 'move-node-to-workspace 2' },
   { if = 'test %{app-bundle-id} = io.readwise.read',            run = 'move-node-to-workspace 2' },
+  # ChatGPT meldet sich als com.openai.codex — dieselbe Bundle-ID wie
+  # die Codex-CLI-App, nicht com.openai.chat.
+  { if = 'test %{app-bundle-id} = com.openai.codex',            run = 'move-node-to-workspace 2' },
 
   # ── 7 · PRODUCTIVITY (Odyssey) — Notizen neben Aufgaben ─────────────
   { if = 'test %{app-bundle-id} = md.obsidian',                 run = 'move-node-to-workspace 7' },
@@ -252,7 +274,20 @@ on-window-detected = [
   # `Meet( |$)` trifft beide und schnappt sich kein Fenster, das nur
   # "Meeting" im Titel trägt — genau daran war die frühere Regex
   # gescheitert, die jedes Chrome-Fenster als PWA einstufte.
+  # ── SEIT 09.09.2026 IST DAS DER NEBENWEG ───────────────────────────
+  # Meet läuft jetzt als eigenständige Coherence-App mit eigener
+  # Bundle-ID (com.BZG.CoherenceGoogle_Meet, Regel direkt darunter).
+  # Damit fällt der ganze Titel-Eiertanz weg: eine Bundle-ID ist stabil,
+  # ein Fenstertitel ändert sich mitten im Meeting.
+  #
+  # Die Chrome-Regel bleibt trotzdem stehen — öffnest du Meet doch
+  # einmal im Browser, landet es weiterhin richtig statt bei den
+  # übrigen Chrome-Fenstern auf 6.
   { if = "test %{app-bundle-id} = com.google.Chrome && test %{window-title} ~= '^(Google )?Meet( |$)'",
+    run = 'move-node-to-workspace 3' },
+
+  # Die Coherence-App. Kein Titelfilter nötig.
+  { if = 'test %{app-bundle-id} = com.BZG.CoherenceGoogle_Meet',
     run = 'move-node-to-workspace 3' },
 
   # Zoom: floatend auf 5, Meeting-Fenster kacheln nie sinnvoll.
@@ -278,13 +313,23 @@ on-window-detected = [
 # bei gestapelten Monitoren ambig ist und sich beim Verschieben in
 # "Anordnen…" ändert. Namen sind stabil.
 [workspace-to-monitor-force-assignment]
-1 = 'lg'
-2 = 'odyssey'
-3 = 'odyssey'
-4 = 'odyssey'
-5 = 'odyssey'
-6 = 'odyssey'
-7 = 'odyssey'
+# Arrays statt einzelner Muster: die ERSTE passende Regel gewinnt, der
+# Rest ist Rückfallebene. Hängt kein externer Monitor dran — Laptop
+# unterwegs —, greift 'built-in' und alle Workspaces landen auf dem
+# eingebauten Schirm. Ohne diese Rückfallebene bleibt eine Zuordnung auf
+# einen fehlenden Monitor stehen, und Workspaces sind schlimmstenfalls
+# nicht mehr erreichbar (AeroSpace-Issue #651).
+#
+# Das ist der einzige Teil der Umschaltung, der VON ALLEIN funktioniert.
+# Das Laptop-Layout selbst (welche App auf welchen Workspace) macht
+# env/laptop.sh, Hotkey alt-ctrl-m.
+1 = ['lg', 'built-in', 'main']
+2 = ['odyssey', 'built-in', 'main']
+3 = ['odyssey', 'built-in', 'main']
+4 = ['odyssey', 'built-in', 'main']
+5 = ['odyssey', 'built-in', 'main']
+6 = ['odyssey', 'built-in', 'main']
+7 = ['odyssey', 'built-in', 'main']
 
 # ═══════════════════════════════════════════════════════════════════════
 # KEYBINDINGS
@@ -407,6 +452,16 @@ on-window-detected = [
   # Baut das komplette Setup: Ghostty-Fenster mit Tabs, alle Apps,
   # beide Monitore. Einmal morgens.
   alt-ctrl-a = 'exec-and-forget ~/.config/aerospace/env/build-all.sh'
+
+  # m wie mobil. Umgekehrte Richtung: zurück an den Schreibtisch mit
+  # alt-ctrl-a, das baut das Zwei-Monitor-Layout ohnehin neu auf.
+  alt-ctrl-m = 'exec-and-forget ~/.config/aerospace/env/laptop.sh'
+
+  # w wie Wechsel. Nach dem An-/Abstecken eines Monitors drücken.
+  # Schaltet KEINEN Modus um — die Verteilung steht deklarativ in
+  # workspace-to-monitor-force-assignment. Sagt AeroSpace nur, dass es
+  # nochmal hinschauen soll (reload + relayout).
+  alt-ctrl-w = 'exec-and-forget ~/.config/aerospace/env/monitorwechsel.sh'
   # Ghostty — EIN Fenster pro Zweck, keine Tabs.
   # Native macOS-Tabs sind einzelne Fenster in einer Gruppe; AeroSpace
   # kachelt Gruppenmitglieder und macOS reisst sie dabei heraus. Deshalb
