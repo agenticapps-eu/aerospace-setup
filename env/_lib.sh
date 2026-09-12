@@ -24,6 +24,7 @@ LIB_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 r_bundle=(); r_ws=(); r_title=(); r_auto=()
 read_layout() {
   local conf="${1:-$LIB_DIR/layout.conf}" line b w t
+  if [ -z "${1:-}" ] && [ "$(python3 "$LIB_DIR/layout.py" mode)" = laptop ]; then conf="$LIB_DIR/layout.laptop.conf"; fi
   r_bundle=(); r_ws=(); r_title=(); r_auto=()
   [ -f "$conf" ] || { echo "Soll-Tabelle fehlt: $conf" >&2; return 1; }
   while IFS= read -r line; do

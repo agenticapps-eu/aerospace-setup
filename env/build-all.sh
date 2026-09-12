@@ -36,11 +36,7 @@ rmdir "$LOCKDIR" 2>/dev/null; trap - EXIT
 read_layout || exit 1
 
 # ── 1) Ghostty ────────────────────────────────────────────────────────
-# Zuerst komplett beenden: bestehende macOS-Tab-Gruppen lösen sich nicht
-# nachträglich auf, AppleWindowTabbingMode gilt nur für NEUE Fenster.
-echo "▸ Ghostty zurücksetzen …"
-ghostty_reset
-
+# Running terminal sessions remain open.
 echo "▸ Ghostty: herdr lokal (1), Remote (5), Terminal (6) …"
 "$HERE/ghostty-herdr.sh"
 "$HERE/ghostty-remote.sh"
@@ -80,7 +76,10 @@ fi
 # ausgleichen, Workspace 2 verschachteln.
 echo "▸ einordnen …"
 "$HERE/relayout.sh"
+if [ "$(python3 "$HERE/layout.py" mode)" = desktop ]; then
+  "$HERE/discover-layout.sh"
+fi
 
 # Fokus: unten Discover, oben Dev
-show 2 1
+if [ "$(python3 "$HERE/layout.py" mode)" = desktop ]; then show 2 1; else "$AERO" workspace 1; fi
 notify "Setup aufgebaut — 7 Workspaces"

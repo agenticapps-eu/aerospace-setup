@@ -34,11 +34,20 @@ read_layout || exit 1
 
 # ── Ghostty-Fenster über die bestehenden Skripte ──────────────────────
 rmdir "$LOCKDIR" 2>/dev/null; trap - EXIT
+mode="$(python3 "$HERE/layout.py" mode)"
+if [ "$mode" = laptop ]; then
+  case "$ws" in
+    1) "$HERE/gt.sh" herdr ;;
+    2) "$HERE/gt.sh" hermes ;;
+    3) "$HERE/gt.sh" homelab ;;
+  esac
+else
 case "$ws" in
   1) "$HERE/ghostty-herdr.sh"  >/dev/null 2>&1 ;;
   5) "$HERE/ghostty-remote.sh" >/dev/null 2>&1 ;;
   6) "$HERE/ghostty-tools.sh"  >/dev/null 2>&1 ;;
 esac
+fi
 
 # ── Die übrigen Apps dieses Workspace ─────────────────────────────────
 # Nur die mit `+`: ohne Markierung heisst "ordne sie ein, wenn sie
@@ -56,9 +65,7 @@ while [ "$i" -lt "${#r_bundle[@]}" ]; do
 done
 
 # ── Richten und hinspringen ───────────────────────────────────────────
-"$AERO" flatten-workspace-tree --workspace "$ws" 2>/dev/null
-"$AERO" layout --workspace "$ws" --root h_tiles 2>/dev/null
-"$AERO" balance-sizes --workspace "$ws" 2>/dev/null
+"$HERE/relayout.sh"
 "$AERO" workspace "$ws" 2>/dev/null
 
 echo "Workspace $ws aufgebaut ($anzahl Apps)"

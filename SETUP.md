@@ -68,7 +68,7 @@ macos/mission-control-keys.sh off       # abschalten, legt vorher ein Backup an
 macos/mission-control-keys.sh restore   # Backup zurückspielen
 ```
 
-Mission Control selbst bleibt über `F3` und Drei-Finger-Wisch erreichbar.
+F3 ist auf Donalds Mac durch Dropzone belegt. Mission Control über die gleichnamige App öffnen; Gesten hängen von den Systemeinstellungen ab.
 
 **Was das kostet:** `alt` + ←/→ ist auf macOS die wortweise Navigation im
 Text, `alt-shift` + ←/→ die wortweise Auswahl. AeroSpace greift global, das
@@ -254,3 +254,17 @@ aerospace reload-config --dry-run       # Ausgabe lesen, nicht den Exit-Code
 macos/check-bleed.sh                    # überstehende Fenster messen (nur lesend)
 macos/monitor-arrangement.sh status     # Monitor-Origins
 ```
+
+## Stand 12. September 2026
+
+[Monitorprofile und Wiederherstellung](docs/layout-lifecycle.md) beschreibt die
+aktuelle Steuerung. Neue Fenster und „Fenster zuordnen“ lesen dieselben Regeln.
+Monitorwechsel bauen Layoutbäume nicht neu auf. Laptop bedeutet ausschließlich
+eingebauter Bildschirm; mit einem verbleibenden externen Monitor gilt Desktop.
+
+Die Repositories agenticapps-eu/aerospace-setup und agenticapps-eu/aeropilot sind
+öffentlich (auf GitHub geprüft). Lokale SSH-Ziele gehören nur in hosts.conf.
+AeroPilot läuft aus ~/Applications/AeroPilot.app, mit LaunchAgent
+~/Library/LaunchAgents/de.donald.aeropilot2.plist. AutoRaise übernimmt Mausfokus;
+AeroSpace focus-follows-mouse bleibt aus. Zusätzliche Ghostty-Konfigurationen unter
+~/Library/Application Support/com.mitchellh.ghostty/ bei Titelfehlern mitprüfen.

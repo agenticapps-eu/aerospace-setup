@@ -11,14 +11,14 @@ die ganze Arbeitsumgebungen in einem Rutsch aufbauen.
 ## Das Layout
 
 ```
-LG ULTRAWIDE  3440×1440   (oben)          1 DEV            Ghostty (herdr) │ Obsidian
+LG ULTRAWIDE  3440×1440   (oben)          1 DEV            Ghostty (herdr) │ ForkLift
 ──────────────────────────────────────────────────────────────────────────────────────
 Odyssey G93SC 5120×1440   (unten, Main)   2 DISCOVER       Zen │ Claude │ Raindrop ⁄ Reader
                                           3 WORK           Dia │ Slack │ Google Meet
                                           4 COMMUNICATION  WhatsApp │ Fastmail
                                           5 REMOTE         Ghostty: VPS │ NAS
                                           6 TOOLS          Ghostty Terminal │ Chrome
-                                          7 PRODUCTIVITY   ForkLift │ Superlist
+                                          7 PRODUCTIVITY   Obsidian │ Superlist
 ```
 
 **Warum der obere Monitor nur einen Workspace hat** — das ist die eine
@@ -65,7 +65,7 @@ macos/mission-control-keys.sh off      # abschalten, legt vorher ein Backup an
 macos/mission-control-keys.sh restore  # Backup zurückspielen
 ```
 
-Mission Control selbst bleibt über `F3` und Drei-Finger-Wisch erreichbar.
+F3 ist auf Donalds Mac durch Dropzone belegt. Mission Control über die gleichnamige App öffnen; Gesten hängen von den Systemeinstellungen ab.
 
 **Kleingedrucktes:** `alt`+←/→ ist auf macOS die wortweise Navigation im
 Text. AeroSpace greift global, das verliert man also in Editoren. Wen das
@@ -135,3 +135,17 @@ löst das.
 ## Lizenz
 
 MIT
+
+## Stand 12. September 2026
+
+[Monitorprofile und Wiederherstellung](docs/layout-lifecycle.md) beschreibt die
+aktuelle Steuerung. Neue Fenster und „Fenster zuordnen“ lesen dieselben Regeln.
+Monitorwechsel bauen Layoutbäume nicht neu auf. Laptop bedeutet ausschließlich
+eingebauter Bildschirm; mit einem verbleibenden externen Monitor gilt Desktop.
+
+Die Repositories agenticapps-eu/aerospace-setup und agenticapps-eu/aeropilot sind
+öffentlich (auf GitHub geprüft). Lokale SSH-Ziele gehören nur in hosts.conf.
+AeroPilot läuft aus ~/Applications/AeroPilot.app, mit LaunchAgent
+~/Library/LaunchAgents/de.donald.aeropilot2.plist. AutoRaise übernimmt Mausfokus;
+AeroSpace focus-follows-mouse bleibt aus. Zusätzliche Ghostty-Konfigurationen unter
+~/Library/Application Support/com.mitchellh.ghostty/ bei Titelfehlern mitprüfen.

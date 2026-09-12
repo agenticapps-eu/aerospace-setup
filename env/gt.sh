@@ -63,5 +63,9 @@ case "$profile" in
     exit 1 ;;
 esac
 
+if [ -z "${2:-}" ] && [ "$(python3 "$HERE/layout.py" mode)" = laptop ]; then
+  case "$profile" in herdr) ws=1 ;; hermes) ws=2 ;; homelab) ws=3 ;; *) ws=7 ;; esac
+fi
+
 # Keine Anführungszeichen nötig: Ghostty bekommt Pfad + einfache Wörter.
 ghostty_window "$ws" "$profile" "$RUNNER $args"

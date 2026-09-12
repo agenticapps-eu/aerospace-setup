@@ -7,3 +7,5 @@ env/hosts.conf
 macos/symbolichotkeys-backup.plist
 *.backup-*
 *.autosave-*
+
+__pycache__/

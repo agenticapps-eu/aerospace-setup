@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # @group: Ghostty
-# @label: hermes + homelab → 5
+# @label: hermes + homelab öffnen
 # @key:   alt-ctrl-5
 # ══════════════════════════════════════════════════════════════════════
 # GHOSTTY · die zwei Remote-herdr-Sessions → Workspace 5
@@ -16,8 +16,8 @@ HERE="$(cd "$(dirname "$0")" && pwd)"
 rmdir "$LOCKDIR" 2>/dev/null; trap - EXIT
 
 for p in hermes homelab; do
-  "$HERE/gt.sh" "$p" 5
+  "$HERE/gt.sh" "$p"
   sleep 0.6
 done
 "$AERO" balance-sizes --workspace 5 2>/dev/null
-notify "herdr remote — hermes + homelab auf Workspace 5"
+notify "hermes + homelab öffnen — aktives Monitorprofil"

@@ -26,7 +26,7 @@ set -uo pipefail
 
 IDS=(32 33 34 35 79 80 81 82)
 DOMAIN=com.apple.symbolichotkeys
-BACKUP_DIR="$HOME/Documents/Claude/Projects/Organization of my productivity/aerospace/macos"
+BACKUP_DIR="$HOME/.local/state/aerospace/backups"
 BACKUP="$BACKUP_DIR/symbolichotkeys-backup.plist"
 ACTIVATE=/System/Library/PrivateFrameworks/SystemAdministration.framework/Resources/activateSettings
 

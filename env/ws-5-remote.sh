@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # @group: Workspace starten
-# @label: 5 · REMOTE — Ghostty hermes, homelab
+# @label: Workspace 5 öffnen (aktives Profil)
 # ══════════════════════════════════════════════════════════════════════
 # Duenner Knopf fuer AeroPilot. Die Arbeit macht ws-open.sh, das die
 # Apps aus layout.conf liest — hier steht bewusst KEINE eigene Liste.

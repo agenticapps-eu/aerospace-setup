@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # @group: Workspace starten
-# @label: 1 · DEV — Ghostty herdr, ForkLift
+# @label: Workspace 1 öffnen (aktives Profil)
 # ══════════════════════════════════════════════════════════════════════
 # Duenner Knopf fuer AeroPilot. Die Arbeit macht ws-open.sh, das die
 # Apps aus layout.conf liest — hier steht bewusst KEINE eigene Liste.

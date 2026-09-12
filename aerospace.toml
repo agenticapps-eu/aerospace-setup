@@ -120,6 +120,8 @@ gaps.outer.bottom     = [{ monitor."odyssey" = 16 }, { monitor."lg" = 12 }, 12]
 # Die erste passende Regel gewinnt — Reihenfolge zählt.
 # Regeln mit `&&` müssen VOR der allgemeinen Regel derselben App stehen.
 on-window-detected = [
+  # Route after synchronous callbacks using the same hardware policy as relayout.
+  { check-further-callbacks = true, run = 'exec-and-forget python3 "$HOME/.config/aerospace/env/layout.py" window' },
   # ╔═ AeroPilot ═══ automatisch verwaltet ═══
   # In AeroPilot gesetzt: Fenster dieser Apps floaten immer.
   # Von Hand hier nichts ändern — die App ersetzt den Block ganz.
@@ -201,109 +203,12 @@ on-window-detected = [
   { if = 'test %{app-bundle-id} = com.edovia.screens.5',        run = 'layout floating' },
   { if = 'test %{app-bundle-id} = com.apple.iWork.Keynote',     run = 'layout floating' },
 
-  # ── 1 · DEV (LG) ────────────────────────────────────────────────────
-  # BEWUSST KEINE Ghostty-Regel. Alle Ghostty-Fenster teilen dieselbe
-  # Bundle-ID, eine Regel könnte sie also nicht unterscheiden — und sie
-  # lief in eine Race Condition gegen die Skripte: die Regel schob jedes
-  # neue Fenster nach 1, während das Skript es woandershin schob. Je nach
-  # Reihenfolge gewann die Regel, und alles landete auf 1.
-  #
-  # Stattdessen fokussieren die Skripte den Zielworkspace VOR dem
-  # Erzeugen — neue Fenster entstehen dort, wo der Fokus ist.
-  # Von Hand geöffnete Ghostty-Fenster (cmd-N) landen deshalb im gerade
-  # aktiven Workspace. Mit alt-shift-<n> weiterschieben.
-  { if = 'test %{app-bundle-id} = com.binarynights.ForkLift',   run = 'move-node-to-workspace 1' },
+  # Workspace routing lives exclusively in env/layout*.conf.
+  # Keep meeting popup floating behavior separate from placement.
+  { if = "test %{app-bundle-id} = com.microsoft.teams2 && test-not %{window-title} ~= '^(Activity|Chat|Teams|Calendar|Calls|Files|Apps|Aktivität|Chats|Kalender|Anrufe|Dateien)'",
+    run = 'layout floating' },
+  { if = 'test %{app-bundle-id} = us.zoom.xos', run = 'layout floating' },
 
-  # ── 2 · DISCOVER (Odyssey) ──────────────────────────────────────────
-  { if = 'test %{app-bundle-id} = app.zen-browser.zen',         run = 'move-node-to-workspace 2' },
-  { if = 'test %{app-bundle-id} = com.anthropic.claudefordesktop', run = 'move-node-to-workspace 2' },
-  { if = 'test %{app-bundle-id} = io.raindrop.macapp',          run = 'move-node-to-workspace 2' },
-  { if = 'test %{app-bundle-id} = io.readwise.read',            run = 'move-node-to-workspace 2' },
-  # ChatGPT meldet sich als com.openai.codex — dieselbe Bundle-ID wie
-  # die Codex-CLI-App, nicht com.openai.chat.
-  { if = 'test %{app-bundle-id} = com.openai.codex',            run = 'move-node-to-workspace 2' },
-
-  # ── 7 · PRODUCTIVITY (Odyssey) — Notizen neben Aufgaben ─────────────
-  { if = 'test %{app-bundle-id} = md.obsidian',                 run = 'move-node-to-workspace 7' },
-  { if = 'test %{app-bundle-id} = com.superlist.superlist',     run = 'move-node-to-workspace 7' },
-
-  # ── 4 · COMMUNICATION (Odyssey) ─────────────────────────────────────
-  { if = 'test %{app-bundle-id} = net.whatsapp.WhatsApp',       run = 'move-node-to-workspace 4' },
-  { if = 'test %{app-bundle-id} = com.fastmail.mac.Fastmail',   run = 'move-node-to-workspace 4' },
-
-  # ── Teams: Hauptfenster gekachelt, Meeting-Popups floatend ─────────
-  # Verifiziert (aerospace test gegen ein Fenster mit bekanntem Titel):
-  # die Regex-Engine kann Anker — 'Claude$' trifft, '^Claude$' trifft,
-  # test-not arbeitet korrekt. Die Logik ist also belastbar.
-  #
-  # Verifiziert am echten Fenster: das Hauptfenster heisst
-  # "Calendar | (Extern) | Microsoft Teams" — der Abschnittsname steht
-  # VORNE. Danach wird unterschieden, nicht am Suffix: ein Meeting-Fenster
-  # endet nämlich sehr wahrscheinlich AUCH auf "Microsoft Teams", weshalb
-  # mein erster Versuch mit `test-not ... ~= 'Microsoft Teams$'` das
-  # Meeting-Fenster nicht erwischt hat.
-  #
-  # NOCH NICHT VERIFIZIERT: der Titel eines laufenden Meeting-Fensters.
-  # Beim nächsten Termin einmal laufen lassen und mir sagen, was rauskommt:
-  #   aerospace list-windows --monitor all --app-bundle-id com.microsoft.teams2 --format '%{window-title}'
-  #
-  # 1) Bekannte Hauptfenster-Ansichten → gekachelt auf 4
-  { if = "test %{app-bundle-id} = com.microsoft.teams2 && test %{window-title} ~= '^(Activity|Chat|Teams|Calendar|Calls|Files|Apps|Aktivität|Chats|Kalender|Anrufe|Dateien)'",
-    run = 'move-node-to-workspace 4' },
-  # 2) Alles andere von Teams → floatend auf 4. Das sind die Popups, die
-  #    bei Meeting-Beginn aufgehen. Unbekanntes floatet lieber, als das
-  #    Layout zu sprengen.
-  { if = 'test %{app-bundle-id} = com.microsoft.teams2',
-    run = ['layout floating', 'move-node-to-workspace 4'] },
-
-  # ── 3 · WORK (Odyssey) ──────────────────────────────────────────────
-  { if = 'test %{app-bundle-id} = company.thebrowser.dia',      run = 'move-node-to-workspace 3' },
-  { if = 'test %{app-bundle-id} = com.tinyspeck.slackmacgap',   run = 'move-node-to-workspace 3' },
-
-  # ── Google Meet ist eine Chrome-PWA ────────────────────────────────
-  # Verifiziert: Meet meldet sich als com.google.Chrome, nicht als eigene
-  # App. Unterschieden wird deshalb am Titel — aber nur mit `=`
-  # (exakte Gleichheit), nicht mit Regex. Die Regex-Variante
-  # (`test-not ... ~= 'Google Chrome$'`) hat vorher jedes normale
-  # Chrome-Fenster als PWA eingeordnet und floatend über Dia und Slack
-  # gelegt. Genau das war die Überlagerung auf Workspace 5.
-  #
-  # ZWEI TITEL, am 20.08.2026 im laufenden Meeting nachgemessen:
-  #   Lobby / kein Anruf   "Google Meet"
-  #   im Anruf             "Meet – Management Huddle - Camera and microphone recording"
-  # Deshalb hier ein eng gefasster Anker statt exakter Gleichheit.
-  # `Meet( |$)` trifft beide und schnappt sich kein Fenster, das nur
-  # "Meeting" im Titel trägt — genau daran war die frühere Regex
-  # gescheitert, die jedes Chrome-Fenster als PWA einstufte.
-  # ── SEIT 09.09.2026 IST DAS DER NEBENWEG ───────────────────────────
-  # Meet läuft jetzt als eigenständige Coherence-App mit eigener
-  # Bundle-ID (com.BZG.CoherenceGoogle_Meet, Regel direkt darunter).
-  # Damit fällt der ganze Titel-Eiertanz weg: eine Bundle-ID ist stabil,
-  # ein Fenstertitel ändert sich mitten im Meeting.
-  #
-  # Die Chrome-Regel bleibt trotzdem stehen — öffnest du Meet doch
-  # einmal im Browser, landet es weiterhin richtig statt bei den
-  # übrigen Chrome-Fenstern auf 6.
-  { if = "test %{app-bundle-id} = com.google.Chrome && test %{window-title} ~= '^(Google )?Meet( |$)'",
-    run = 'move-node-to-workspace 3' },
-
-  # Die Coherence-App. Kein Titelfilter nötig.
-  { if = 'test %{app-bundle-id} = com.BZG.CoherenceGoogle_Meet',
-    run = 'move-node-to-workspace 3' },
-
-  # Zoom: floatend auf 5, Meeting-Fenster kacheln nie sinnvoll.
-  { if = 'test %{app-bundle-id} = us.zoom.xos', run = ['layout floating', 'move-node-to-workspace 3'] },
-
-  # ── 6 · TOOLS · 5 · REMOTE (Odyssey) ────────────────────────────────
-  # Ghostty-Fenster werden von den Skripten per --window-id gesetzt, nicht
-  # über Regeln — alle teilen com.mitchellh.ghostty. Die Ghostty-Regel
-  # oben (→ 1) ist nur der Ruhezustand für von Hand geöffnete Fenster.
-  # Alles andere Chrome → 6, neben dem Terminal.
-  # Die Meet-Regel oben greift vorher und deckt beide Titel ab — auch den
-  # im laufenden Anruf. Erste Übereinstimmung gewinnt.
-  { if = 'test %{app-bundle-id} = com.google.Chrome',           run = 'move-node-to-workspace 6' },
-  { if = 'test %{app-bundle-id} = pro.writer.mac',              run = 'move-node-to-workspace 6' },
-  { if = 'test %{app-bundle-id} = com.coteditor.CotEditor',     run = 'move-node-to-workspace 6' },
 ]
 
 # ═══════════════════════════════════════════════════════════════════════
@@ -321,9 +226,8 @@ on-window-detected = [
 # einen fehlenden Monitor stehen, und Workspaces sind schlimmstenfalls
 # nicht mehr erreichbar (AeroSpace-Issue #651).
 #
-# Das ist der einzige Teil der Umschaltung, der VON ALLEIN funktioniert.
-# Das Laptop-Layout selbst (welche App auf welchen Workspace) macht
-# env/laptop.sh, Hotkey alt-ctrl-m.
+# AeroPilot ruft beim Start und nach Monitoränderungen den gemeinsamen
+# Profilhandler auf. alt-ctrl-m gleicht das Hardwareprofil manuell ab.
 1 = ['lg', 'built-in', 'main']
 2 = ['odyssey', 'built-in', 'main']
 3 = ['odyssey', 'built-in', 'main']
