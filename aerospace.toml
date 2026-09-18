@@ -4,13 +4,12 @@
 # LG ULTRAWIDE 3440×1440  (oben)        → Workspace 1, und nur 1
 # Odyssey G93SC 5120×1440 (unten, Main) → Workspace 2 · 3 · 4 · 5 · 6 · 7
 #
-#   1 DEV            Ghostty (herdr) │ ForkLift          ← LG, fest
+#   1 DEV            Ghostty (herdr lokal) │ iTerm (herdr Mac mini)  ← LG
 #   2 DISCOVER       Zen │ Claude │ Raindrop ⁄ Reader
 #   3 WORK           Dia │ Slack  │ Google Meet
 #   4 COMMUNICATION  WhatsApp │ Fastmail                 (+ Teams on demand)
-#   5 REMOTE         Ghostty: herdr hermes │ herdr homelab (NAS)
-#   6 TOOLS          Ghostty Terminal │ Chrome   (+ btop, superfile,
-#                    iA Writer, CotEditor on demand)
+#   5 HOMELAB        cmux: hermes ⁄ homelab (herdr remote) │ ForkLift
+#   6 TOOLS          Chrome │ iA Writer │ CotEditor   (kein Ghostty mehr)
 #   7 PRODUCTIVITY   Obsidian │ Superlist       ← Notizen neben Aufgaben
 #
 # WARUM der LG nur EINEN Workspace hat:
@@ -120,8 +119,6 @@ gaps.outer.bottom     = [{ monitor."odyssey" = 16 }, { monitor."lg" = 12 }, 12]
 # Die erste passende Regel gewinnt — Reihenfolge zählt.
 # Regeln mit `&&` müssen VOR der allgemeinen Regel derselben App stehen.
 on-window-detected = [
-  # Route after synchronous callbacks using the same hardware policy as relayout.
-  { check-further-callbacks = true, run = 'exec-and-forget python3 "$HOME/.config/aerospace/env/layout.py" window' },
   # ╔═ AeroPilot ═══ automatisch verwaltet ═══
   # In AeroPilot gesetzt: Fenster dieser Apps floaten immer.
   # Von Hand hier nichts ändern — die App ersetzt den Block ganz.
@@ -129,6 +126,7 @@ on-window-detected = [
   # check-further-callbacks: floaten UND die Regeln darunter
   # weiterhin durchlaufen. Ohne das gewönne diese Regel als erste
   # passende, und die Workspace-Zuordnung fiele aus.
+  { if = 'test %{app-bundle-id} = app.tagwerk.tagwerk', check-further-callbacks = true, run = 'layout floating' },
   { if = 'test %{app-bundle-id} = com.BZG.CoherenceX5', check-further-callbacks = true, run = 'layout floating' },
   { if = 'test %{app-bundle-id} = com.BZG.CoherenceX6', check-further-callbacks = true, run = 'layout floating' },
   { if = 'test %{app-bundle-id} = com.apple.AppStore', check-further-callbacks = true, run = 'layout floating' },
@@ -140,6 +138,9 @@ on-window-detected = [
   { if = 'test %{app-bundle-id} = iordv.Droppy', check-further-callbacks = true, run = 'layout floating' },
   { if = 'test %{app-bundle-id} = org.localsend.localsendApp', check-further-callbacks = true, run = 'layout floating' },
   # ╚═ Ende AeroPilot ═══════════════════════
+
+  # Route after synchronous callbacks using the same hardware policy as relayout.
+  { check-further-callbacks = true, run = 'exec-and-forget python3 "$HOME/.config/aerospace/env/layout.py" window' },
 
   # ── Hilfsfenster: floaten, wo sie aufgehen ──────────────────────────
   # BEWUSST AUSSERHALB des AeroPilot-Blocks. Die App ersetzt ihren Block
@@ -372,8 +373,10 @@ on-window-detected = [
   # kachelt Gruppenmitglieder und macOS reisst sie dabei heraus. Deshalb
   # umgeschaltet wird mit AeroSpace, nicht mit Ghostty-Tabs.
   alt-ctrl-1 = 'exec-and-forget ~/.config/aerospace/env/ghostty-herdr.sh'
-  alt-ctrl-5 = 'exec-and-forget ~/.config/aerospace/env/ghostty-remote.sh'
-  alt-ctrl-6 = 'exec-and-forget ~/.config/aerospace/env/ghostty-tools.sh'
+  # iTerm mit herdr auf dem Mac mini, cmux mit hermes und homelab.
+  # Ghostty gibt es nur noch fuer herdr lokal (alt-ctrl-1).
+  alt-ctrl-3 = 'exec-and-forget ~/.config/aerospace/env/it.sh'
+  alt-ctrl-5 = 'exec-and-forget ~/.config/aerospace/env/homelab.sh'
   # Nur die Layouts richten (r = relayout).
   # Bewusst nicht alt-ctrl-l — zu nah an alt-ctrl-left.
   alt-ctrl-r = 'exec-and-forget ~/.config/aerospace/env/relayout.sh'

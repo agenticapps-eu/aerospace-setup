@@ -11,3 +11,4 @@
 
 HERMES_HOST=hermes
 NAS_HOST=ugreen
+MACMINI_HOST=mac-mini

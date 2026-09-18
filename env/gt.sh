@@ -52,9 +52,10 @@ case "$profile" in
   #   hängt sich wieder dran, statt bei null anzufangen.
   # --retry:   siehe gt-run.sh — kurze Netzhänger heilen von selbst, und
   #   das Fenster stirbt nicht mit der Verbindung.
+  # hermes und homelab sind am 18.09.2026 nach cmux umgezogen (homelab.sh),
+  # der Mac mini nach iTerm (it.sh). Ghostty bleibt fuer herdr lokal und
+  # fuer die Werkzeuge, die man ab und zu von Hand aufmacht.
   herdr)   ws="${2:-1}"; args="herdr herdr" ;;
-  hermes)  ws="${2:-5}"; args="hermes --retry herdr --remote $HERMES_HOST --session hermes" ;;
-  homelab) ws="${2:-5}"; args="homelab --retry herdr --remote $NAS_HOST --session homelab" ;;
   term)    ws="${2:-6}"; args="terminal" ;;
   btop)    ws="${2:-6}"; args="btop btop" ;;
   spf)     ws="${2:-6}"; args="superfile spf" ;;

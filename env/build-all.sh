@@ -37,10 +37,13 @@ read_layout || exit 1
 
 # ── 1) Ghostty ────────────────────────────────────────────────────────
 # Running terminal sessions remain open.
-echo "▸ Ghostty: herdr lokal (1), Remote (5), Terminal (6) …"
+# Terminals: Ghostty nur noch fuer herdr lokal, iTerm fuer den Mac mini,
+# cmux fuer hermes und homelab. Ghostty-Fenster fuer Tools gibt es nicht
+# mehr automatisch — bei Bedarf gt.sh term | btop | spf.
+echo "▸ Terminals: Ghostty herdr (1), iTerm Mac mini (1), cmux homelab (5) …"
 "$HERE/ghostty-herdr.sh"
-"$HERE/ghostty-remote.sh"
-"$HERE/ghostty-tools.sh"
+"$HERE/it.sh"
+"$HERE/homelab.sh"
 
 # ── 2) Apps öffnen ────────────────────────────────────────────────────
 # Erst alle anstossen, dann gemeinsam warten. Nacheinander zu warten

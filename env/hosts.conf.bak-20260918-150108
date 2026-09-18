@@ -1,0 +1,5 @@
+# Lokale SSH-Ziele — nicht im Repo (.gitignore).
+# Sobald du einen Alias in ~/.ssh/config anlegst, hier auf den Alias
+# umstellen; dann gibt es nur noch eine Stelle zum Nachziehen.
+HERMES_HOST=72.62.92.185
+NAS_HOST=ugreen
