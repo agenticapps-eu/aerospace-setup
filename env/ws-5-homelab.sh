@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 # @group: Workspace starten
-# @label: Workspace 5 öffnen (aktives Profil)
+# @label: 5 · HOMELAB öffnen
 # ══════════════════════════════════════════════════════════════════════
 # Duenner Knopf fuer AeroPilot. Die Arbeit macht ws-open.sh, das die
 # Apps aus layout.conf liest — hier steht bewusst KEINE eigene Liste.
-# Fuer die Ghostty-Workspaces (1, 5, 6) ruft ws-open.sh die vorhandenen
-# ghostty-*.sh auf; die Eintraege unter "Ghostty" bleiben daneben
-# bestehen, sie sind der direkte Weg ohne Umweg ueber layout.conf.
+# Die Terminals (Ghostty auf 1, iTerm auf 1, cmux auf 5) ruft ws-open.sh
+# ueber ihre eigenen Skripte auf; die Eintraege unter "Terminals"
+# bleiben daneben bestehen, sie sind der direkte Weg.
 # ══════════════════════════════════════════════════════════════════════
 exec "$(dirname "$0")/ws-open.sh" 5

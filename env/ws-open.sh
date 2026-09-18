@@ -35,18 +35,22 @@ read_layout || exit 1
 # ── Ghostty-Fenster über die bestehenden Skripte ──────────────────────
 rmdir "$LOCKDIR" 2>/dev/null; trap - EXIT
 mode="$(python3 "$HERE/layout.py" mode)"
+# STAND 18.09.2026: hermes und homelab laufen in cmux (homelab.sh), der
+# Mac mini in iTerm (it.sh), Ghostty nur noch fuer herdr lokal. Bis hierher
+# standen noch ghostty-remote.sh und ghostty-tools.sh — beide geloescht,
+# und weil die Ausgabe nach /dev/null ging, ist der Fehlschlag still
+# geblieben. Deshalb jetzt ohne Unterdrueckung: wenn etwas nicht geht,
+# soll man es sehen.
 if [ "$mode" = laptop ]; then
   case "$ws" in
-    1) "$HERE/gt.sh" herdr ;;
-    2) "$HERE/gt.sh" hermes ;;
-    3) "$HERE/gt.sh" homelab ;;
+    1) "$HERE/gt.sh" herdr; "$HERE/it.sh" ;;
+    2) "$HERE/homelab.sh" ;;
   esac
 else
-case "$ws" in
-  1) "$HERE/ghostty-herdr.sh"  >/dev/null 2>&1 ;;
-  5) "$HERE/ghostty-remote.sh" >/dev/null 2>&1 ;;
-  6) "$HERE/ghostty-tools.sh"  >/dev/null 2>&1 ;;
-esac
+  case "$ws" in
+    1) "$HERE/ghostty-herdr.sh"; "$HERE/it.sh" ;;
+    5) "$HERE/homelab.sh" ;;
+  esac
 fi
 
 # ── Die übrigen Apps dieses Workspace ─────────────────────────────────
@@ -57,7 +61,9 @@ i=0
 while [ "$i" -lt "${#r_bundle[@]}" ]; do
   if [ "${r_ws[$i]}" = "$ws" ] && [ "${r_auto[$i]}" = "ja" ]; then
     case "${r_bundle[$i]}" in
-      com.mitchellh.ghostty) ;;          # oben schon erledigt
+      # Terminals sind oben schon dran gewesen — hier nicht noch einmal
+      # oeffnen, sonst haengt place_one ein zweites Fenster daneben.
+      com.mitchellh.ghostty|com.googlecode.iterm2|com.cmuxterm.app) ;;
       *) place_one "${r_bundle[$i]}" "$ws"; anzahl=$((anzahl+1)) ;;
     esac
   fi

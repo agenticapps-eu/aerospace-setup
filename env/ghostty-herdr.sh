@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# @group: Ghostty
-# @label: herdr lokal öffnen
+# @group: Terminals
+# @label: Ghostty herdr lokal → 1
 # @key:   alt-ctrl-1
 # ══════════════════════════════════════════════════════════════════════
 # GHOSTTY · herdr lokal → Workspace 1        Hotkey: alt-ctrl-1
