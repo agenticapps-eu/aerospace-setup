@@ -21,9 +21,14 @@ MACMINI_HOST="${MACMINI_HOST:-mac-mini}"
 
 [ -d /Applications/iTerm.app ] || { echo "iTerm2 ist nicht installiert."; exit 1; }
 
-# Laeuft schon eine Sitzung? Dann nur hinspringen statt eine zweite oeffnen.
-if [ -n "$("$AERO" list-windows --monitor all --app-bundle-id com.googlecode.iterm2 --format '%{window-id}' 2>/dev/null)" ]; then
-  echo "iTerm laeuft bereits — kein zweites Fenster."
+# Laeuft die SITZUNG schon? Nicht: laeuft irgendein iTerm-Fenster.
+#
+# Der Unterschied hat mich am 18.09.2026 zweimal erwischt: iTerm oeffnet
+# beim Aktivieren von sich aus ein leeres Fenster, und die alte Pruefung
+# hielt das faelschlich fuer „alles da" und tat nichts. Gepruef wird
+# deshalb der herdr-Prozess zum Ziel-Host.
+if pgrep -f "herdr --remote $MACMINI_HOST" >/dev/null 2>&1; then
+  echo "macmini-Sitzung laeuft bereits."
   "$AERO" workspace 1 2>/dev/null
   exit 0
 fi
@@ -36,9 +41,18 @@ fi
 RUNNER="$HERE/gt-run.sh"
 CMD="$RUNNER macmini --retry herdr --remote $MACMINI_HOST --session macmini"
 
+# Profil "Ghostty-Look" liegt als Dynamic Profile unter
+# ~/Library/Application Support/iTerm2/DynamicProfiles/aerospace.json —
+# Catppuccin Mocha, FiraCode Nerd Font Mono 16, Transparenz und Blur wie
+# in Ghostty. iTerm liest die Datei im laufenden Betrieb neu ein.
+# Faellt das Profil aus, nimmt AppleScript das Standardprofil.
 osascript <<APPLESCRIPT >/dev/null 2>&1
 tell application "iTerm"
-  create window with default profile command "$CMD"
+  try
+    create window with profile "Ghostty-Look" command "$CMD"
+  on error
+    create window with default profile command "$CMD"
+  end try
 end tell
 APPLESCRIPT
 
