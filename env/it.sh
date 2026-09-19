@@ -33,13 +33,17 @@ if pgrep -f "herdr --remote $MACMINI_HOST" >/dev/null 2>&1; then
   exit 0
 fi
 
-# --session: herdr haelt die Sitzung auf dem Mac mini am Leben. Bricht die
-#   Verbindung ab, laeuft dort alles weiter und der naechste Aufruf haengt
-#   sich wieder dran.
+# --session default: AUSDRUECKLICH die Default-Sitzung des Mac mini.
+#   Ohne das Flag leitet herdr den Sitzungsnamen aus dem SSH-Ziel ab und
+#   erzeugt "macmini" — eine Sitzung, deren Server beim Attach ueber SSH
+#   startet und damit ausserhalb der Aqua-Sitzung liegt. Claude Code kommt
+#   dort nicht an den Schluesselbund und meldet "Not logged in".
+#   Die Default-Sitzung gehoert dem LaunchAgent dev.herdr.server auf dem
+#   Mac mini, laeuft also in der GUI-Sitzung; ihre Panes erben das.
 # --retry:   siehe gt-run.sh — kurze Netzhaenger heilen von selbst, und das
 #   Fenster stirbt nicht mit der Verbindung.
 RUNNER="$HERE/gt-run.sh"
-CMD="$RUNNER macmini --retry herdr --remote $MACMINI_HOST --session macmini"
+CMD="$RUNNER macmini --retry herdr --remote $MACMINI_HOST --session default"
 
 # Profil "Ghostty-Look" liegt als Dynamic Profile unter
 # ~/Library/Application Support/iTerm2/DynamicProfiles/aerospace.json —
