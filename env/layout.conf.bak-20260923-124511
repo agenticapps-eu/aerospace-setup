@@ -65,9 +65,7 @@ com.BZG.CoherenceMeet            3
 
 # ── 4 COMMUNICATION ───────────────────────────────────────────────────
 +net.whatsapp.WhatsApp            4
-# Fastmail am 23.09.2026 aus der Zuordnung genommen — bleibt liegen,
-# wo es ist, und wird von relayout nicht mehr angefasst.
-com.fastmail.mac.Fastmail        -
++com.fastmail.mac.Fastmail        4
 # Teams: nur das Hauptfenster. Meeting-Popups floaten und tragen andere
 # Titel — die würden sonst als "falscher Workspace" gemeldet.
 com.microsoft.teams2             4   ^(Activity|Chat|Teams|Calendar|Calls|Files|Apps|Aktivität|Chats|Kalender|Anrufe|Dateien)
@@ -79,19 +77,13 @@ com.microsoft.teams2             -
 # zaehlt ein Fenster) und ForkLift fuer die Dateiseite.
 +com.cmuxterm.app                 5
 +com.binarynights.ForkLift        5
-# Chrome allgemein hierher (frueher 6). Die Meet-Regel weiter oben
-# greift vorher und bleibt auf 3 — erste Uebereinstimmung gewinnt.
-com.google.Chrome                5
 
 # ── 6 TOOLS ───────────────────────────────────────────────────────────
-# Obsidian und Superlist ohne `+`: sie werden eingeordnet, wenn sie
-# laufen, aber von alt-ctrl-a nicht mehr mit geoeffnet.
-md.obsidian                      6
-com.superlist.superlist          6
+com.google.Chrome                6
 
-# ── 7 ABLAGE ──────────────────────────────────────────────────────────
-# Bewusst ohne feste Zuordnung: freie Flaeche fuer das, was gerade
-# irgendwohin muss. Erreichbar ueber alt-7.
+# ── 7 PRODUCTIVITY ────────────────────────────────────────────────────
++md.obsidian                      7
++com.superlist.superlist          7
 
 # ── Ghostty ───────────────────────────────────────────────────────────
 # Alle Fenster teilen eine Bundle-ID, unterscheidbar sind sie nur am

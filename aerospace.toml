@@ -7,10 +7,10 @@
 #   1 DEV            Ghostty (herdr lokal) │ iTerm (herdr Mac mini)  ← LG
 #   2 DISCOVER       Zen │ Claude │ Raindrop ⁄ Reader
 #   3 WORK           Dia │ Slack  │ Google Meet
-#   4 COMMUNICATION  WhatsApp │ Fastmail                 (+ Teams on demand)
-#   5 HOMELAB        cmux: hermes ⁄ homelab (herdr remote) │ ForkLift
-#   6 TOOLS          Chrome │ iA Writer │ CotEditor   (kein Ghostty mehr)
-#   7 PRODUCTIVITY   Obsidian │ Superlist       ← Notizen neben Aufgaben
+#   4 KOMMUNIKATION  WhatsApp │ Teams (nur Hauptfenster)
+#   5 HOMELAB        cmux: hermes ⁄ homelab │ ForkLift │ Chrome
+#   6 TOOLS          Obsidian │ Superlist │ iA Writer │ CotEditor
+#   7 ABLAGE         frei — was gerade irgendwohin muss
 #
 # WARUM der LG nur EINEN Workspace hat:
 # AeroSpace parkt Fenster unsichtbarer Workspaces in einer unteren Ecke
@@ -64,7 +64,23 @@ accordion-padding = 40
 # "lazy" heisst: nur bewegen, wenn der Cursor nicht schon im Fenster ist.
 # Damit ruckelt die Maus nicht bei jedem Klick innerhalb desselben
 # Fensters herum.
-on-focus-changed = ['move-mouse window-lazy-center']
+# ABGESCHALTET am 23.09.2026. Gemessen: der Zeiger sprang bei jedem
+# Fokuswechsel fast 1000 px weit (2390,1359 → 1409,734 → 2692,734).
+#
+# Der Callback war das Gegenstueck zu AeroSpaces eigenem
+# focus-follows-mouse. Das steht seit August auf false, weil AutoRaise
+# die Aufgabe uebernommen hat — seitdem hatte er keine Funktion mehr und
+# richtete nur Schaden an:
+#
+#   AutoRaise fokussiert das Fenster unter dem Zeiger  →  AeroSpace
+#   teleportiert den Zeiger in dessen Mitte  →  das ist eine Bewegung,
+#   also prueft AutoRaise erneut  →  ggf. anderes Fenster, naechster
+#   Sprung. Sekundenlanges Ping-Pong, bis es sich einpendelt.
+#
+# Und faellt so ein Sprung zwischen Maus-runter und Maus-hoch, wertet
+# macOS das als ZIEHEN statt Klicken — in Slack wurde damit der Chat
+# verschoben statt ausgewaehlt.
+# on-focus-changed = ['move-mouse window-lazy-center']
 
 # Dasselbe auf Monitorebene, als Netz für den Fall, dass kein Fenster
 # fokussiert ist (window-lazy-center scheitert dann).
