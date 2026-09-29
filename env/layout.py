@@ -118,7 +118,22 @@ class Controller:
         condition = f"if = 'test %{{app-bundle-id}} = {bundle}'"
         return any(condition in line and "run = 'layout floating'" in line
                    for line in self.config.read_text().splitlines())
+    def try_layout(self, *args):
+        # Ein einzelnes Fenster, dessen Layout sich nicht wiederherstellen
+        # laesst, darf den Durchlauf NICHT abbrechen. Sonst bleiben alle
+        # spaeteren Fenster unsortiert, das Profil wird nicht veroeffentlicht,
+        # und jeder Folgeversuch scheitert an derselben Stelle — ein
+        # Dauerzustand, der sich ohne Eingriff nicht loest.
+        # Gesehen am 29.09.2026: "layout failed: The window is non-tiling"
+        # nach dem Wiederanschliessen der Monitore.
+        try:
+            self.api.run('layout', *args)
+            return True
+        except RuntimeError as exc:
+            self.warnings.append(f'{args[0]} fuer Fenster {args[-1]}: {str(exc).strip()}')
+            return False
     def sync(self, reason='relayout', window_id=None):
+        self.warnings = []
         if (self.state_dir / 'disabled').exists(): return 'disabled'
         mode = profile(self.api.monitors())
         rules_file = self.rules_dir / ('layout.laptop.conf' if mode == 'laptop' else 'layout.conf')
@@ -158,11 +173,15 @@ class Controller:
             if temporary_float and w['window-layout'] != 'floating':
                 state['floats'].setdefault(wid, {'pid': w['app-pid'], 'start': w.get('process-start'), 'bundle': w['app-bundle-id'], 'layout': w['window-layout']})
                 self.save(state)  # write-ahead: interruption must not lose the original layout
-                self.api.run('layout', 'floating', '--window-id', wid)
+                if not self.try_layout('floating', '--window-id', wid):
+                    state['floats'].pop(wid, None)  # nicht floatend gesetzt, also nichts zu merken
+                    self.save(state)
             elif not temporary_float and wid in state['floats']:
                 saved = state['floats'][wid]
                 if w['window-layout'] == 'floating' and not self.pinned(w['app-bundle-id']):
-                    self.api.run('layout', saved['layout'], '--window-id', wid)
+                    self.try_layout(saved['layout'], '--window-id', wid)
+                # Eintrag in jedem Fall raeumen — auch wenn die Wiederherstellung
+                # scheiterte. Sonst blockiert dasselbe Fenster jeden weiteren Lauf.
                 del state['floats'][wid]
                 self.save(state)
         # Publish only after successful routing; old profile forces retry after failures.
@@ -255,9 +274,15 @@ def main():
     with lock():
         if args.action == 'discover': discover(api)
         else:
-            result = Controller(api).sync(args.action, wid)
-            print(result)
-            if args.action != 'window': log(args.action + ': ' + result)
+            controller = Controller(api)
+            result = controller.sync(args.action, wid)
+            warnings = getattr(controller, 'warnings', [])
+            # Warnungen sichtbar machen, ohne den Lauf als gescheitert zu melden:
+            # die Zuordnung ist erfolgt, nur einzelne Layouts liessen sich nicht setzen.
+            print(result + (f' ({len(warnings)} Fenster uebersprungen)' if warnings else ''))
+            for w in warnings: print('  ' + w, file=sys.stderr)
+            if args.action != 'window':
+                log(args.action + ': ' + result + ''.join('\n  WARN ' + w for w in warnings))
 
 
 if __name__ == '__main__':
