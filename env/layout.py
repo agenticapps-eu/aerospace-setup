@@ -26,10 +26,34 @@ def log(message):
         stream.write(time.strftime('%Y-%m-%d %H:%M:%S ') + message + '\n')
 
 
+BUILT_IN = r'built-in|color lcd|liquid retina'
+
+
 def profile(names):
     if not names:
         raise ValueError('No monitors detected; leaving layout unchanged')
-    return 'laptop' if all(re.search(r'built-in|color lcd|liquid retina', n, re.I) for n in names) else 'desktop'
+    return 'laptop' if all(re.search(BUILT_IN, n, re.I) for n in names) else 'desktop'
+
+
+def hardware_mode(api):
+    # Drei Faelle, nicht zwei (11.10.2026):
+    #   laptop  — nur der eingebaute Schirm, unterwegs
+    #   hybrid  — Workspace 1 liegt auf dem eingebauten Schirm, waehrend
+    #             daneben ein externer haengt (MacBook neben dem Samsung)
+    #   desktop — Workspace 1 liegt auf einem externen Schirm
+    #
+    # Entscheidend ist NICHT, ob der eingebaute Schirm angeschlossen ist —
+    # bei aufgeklapptem Deckel neben LG und Odyssey waere das auch der Fall,
+    # Workspace 1 laege aber auf dem LG und alles bliebe wie gehabt.
+    # Entscheidend ist, WO Workspace 1 landet. Das steht in
+    # workspace-to-monitor-force-assignment, und genau das wird hier
+    # abgelesen statt nachgebaut — sonst gaebe es die Monitorregeln zweimal
+    # und sie liefen auseinander. Ein kuenftiger dritter Monitor wirkt damit
+    # ohne Codeaenderung.
+    mode = profile(api.monitors())
+    if mode == 'desktop' and re.search(BUILT_IN, api.workspace_monitor('1'), re.I):
+        return 'hybrid'
+    return mode
 
 
 def read_rules(path):
@@ -73,6 +97,16 @@ class Aero:
         return p.stdout.strip()
     def monitors(self):
         return [m['monitor-name'] for m in json.loads(self.run('list-monitors', '--json'))]
+    def workspace_monitor(self, workspace):
+        # Auf welchem Monitor liegt ein Workspace gerade? Beantwortet von
+        # AeroSpace, also inklusive der Fallback-Ketten aus der Config.
+        # --format ist noetig: ohne es liefert --json nur die Workspace-Namen.
+        rows = json.loads(self.run('list-workspaces', '--monitor', 'all',
+                                   '--format', '%{workspace} %{monitor-name}', '--json'))
+        for row in rows:
+            if str(row.get('workspace')) == str(workspace):
+                return row.get('monitor-name', '')
+        return ''
     def windows(self):
         windows = json.loads(self.run('list-windows', '--all', '--format',
             '%{window-id} %{workspace} %{app-bundle-id} %{app-pid} %{window-title} %{window-layout}', '--json'))
@@ -96,7 +130,7 @@ class Controller:
         state = json.loads(path.read_text())
         if not isinstance(state, dict) or state.get('version') != 1:
             raise ValueError('Unknown state version; leave unchanged and inspect profile.json')
-        if state.get('profile') not in (None, 'desktop', 'laptop'):
+        if state.get('profile') not in (None, 'desktop', 'laptop', 'hybrid'):
             raise ValueError('Invalid profile; leaving layout unchanged')
         for field in ('floats', 'positions'):
             if not isinstance(state.get(field, {}), dict):
@@ -135,9 +169,16 @@ class Controller:
     def sync(self, reason='relayout', window_id=None):
         self.warnings = []
         if (self.state_dir / 'disabled').exists(): return 'disabled'
-        mode = profile(self.api.monitors())
-        rules_file = self.rules_dir / ('layout.laptop.conf' if mode == 'laptop' else 'layout.conf')
-        rules = read_rules(rules_file)
+        mode = hardware_mode(self.api)
+        # Profilregeln werden VORANGESTELLT, nicht ersetzt: target() nimmt die
+        # erste passende Regel, also gewinnt die Profildatei und alles uebrige
+        # kommt weiter aus der einen Soll-Tabelle. Eine Profildatei mit '*' als
+        # Auffangfall (layout.laptop.conf) wirkt dadurch weiterhin wie ein
+        # vollstaendiger Ersatz — layout.hybrid.conf braucht dagegen nur die
+        # eine Zeile, die abweicht. Keine zweite Wahrheit.
+        override = self.rules_dir / f'layout.{mode}.conf'
+        rules = (read_rules(override) if override.exists() else []) \
+            + read_rules(self.rules_dir / 'layout.conf')
         state = self.load()
         changed = state.get('profile') != mode
         if reason == 'monitor': self.api.run('reload-config')
@@ -153,10 +194,12 @@ class Controller:
         for w in windows:
             if window_id is not None and not changed and w['window-id'] != window_id: continue
             wid = str(w['window-id']); ws = target(w, rules)
-            if mode == 'laptop' and changed and state.get('profile') == 'desktop' and wid not in state['positions']:
+            # 'hybrid' zaehlt hier wie 'desktop': Positionen werden gesichert,
+            # wenn man von einer Mehrschirm-Lage auf den Laptop wechselt.
+            if mode == 'laptop' and changed and state.get('profile') not in (None, 'laptop') and wid not in state['positions']:
                 state['positions'][wid] = {'pid': w['app-pid'], 'start': w.get('process-start'), 'bundle': w['app-bundle-id'], 'workspace': w['workspace']}
                 self.save(state)
-            if mode == 'desktop' and ws is None and wid in state['positions']:
+            if mode != 'laptop' and ws is None and wid in state['positions']:
                 ws = state['positions'][wid]['workspace']
             if ws is not None and ws != w['workspace']:
                 self.api.run('move-node-to-workspace', '--window-id', wid, ws)
@@ -185,7 +228,7 @@ class Controller:
                 del state['floats'][wid]
                 self.save(state)
         # Publish only after successful routing; old profile forces retry after failures.
-        if mode == 'desktop': state['positions'] = {}
+        if mode != 'laptop': state['positions'] = {}
         state['profile'] = mode
         self.save(state)
         return mode
@@ -215,7 +258,7 @@ def tile_order(api):
 
 
 def discover(api):
-    if profile(api.monitors()) == 'laptop':
+    if hardware_mode(api) == 'laptop':
         raise ValueError('Discover is a desktop layout; laptop layout left unchanged')
     old = api.run('list-windows', '--focused', '--format', '%{window-id}')
     desired, pair = discover_order(api.windows())
@@ -263,7 +306,7 @@ def main():
     parser.add_argument('action', choices=['monitor','relayout','window','discover','mode'])
     args = parser.parse_args()
     api = Aero()
-    if args.action == 'mode': print(profile(api.monitors())); return
+    if args.action == 'mode': print(hardware_mode(api)); return
     if (STATE / 'disabled').exists(): print('disabled'); return
     wid = None
     if args.action == 'window':
