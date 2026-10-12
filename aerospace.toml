@@ -329,8 +329,14 @@ on-window-detected = [
   #
   # `workspace prev/next` blättert nur die Workspaces des Monitors, auf
   # dem du gerade bist — 1→2→3 oben, 4→5→6 unten.
-  ctrl-left  = 'workspace --wrap-around prev'
-  ctrl-right = 'workspace --wrap-around next'
+  # ⚠️ Nicht direkt `workspace --wrap-around next` (12.10.2026): das
+  # blaettert nur die Workspaces des AKTUELLEN Monitors. Seit zwei der
+  # drei Monitore genau einen Workspace tragen (G61SH → 1, intern → 4)
+  # war die Taste dort wirkungslos — gemessen: drei Druecke, Fokus blieb
+  # auf 4. ws-cycle.sh behaelt das Verhalten bei und rutscht nur dann auf
+  # den naechsten Monitor weiter, wenn es sonst nicht weitergeht.
+  ctrl-left  = 'exec-and-forget ~/.config/aerospace/env/ws-cycle.sh prev'
+  ctrl-right = 'exec-and-forget ~/.config/aerospace/env/ws-cycle.sh next'
 
   # ⚠️ KEINE Monitornamen mehr (12.10.2026). Hier stand `focus-monitor lg`
   # bzw. `odyssey`. Als der LG abgebaut wurde, zeigte ctrl-↑ auf ein Gerät,
