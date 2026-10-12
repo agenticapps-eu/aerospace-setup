@@ -253,13 +253,28 @@ on-window-detected = [
 #
 # AeroPilot ruft beim Start und nach Monitoränderungen den gemeinsamen
 # Profilhandler auf. alt-ctrl-m gleicht das Hardwareprofil manuell ab.
-1 = ['lg', 'built-in', 'main']
-2 = ['odyssey', 'built-in', 'main']
-3 = ['odyssey', 'built-in', 'main']
-4 = ['odyssey', 'built-in', 'main']
-5 = ['odyssey', 'built-in', 'main']
-6 = ['odyssey', 'built-in', 'main']
-7 = ['odyssey', 'built-in', 'main']
+# ⚠️ NIE wieder 'odyssey' als Muster (12.10.2026). Seit der zweite
+# Samsung da ist, heissen BEIDE Monitore "Odyssey …" — 'odyssey' traf
+# damit auch den kleinen G61SH, AeroSpace nimmt den ersten Treffer, und
+# der gesamte Arbeitsbereich landete auf dem 27-Zoeller statt auf dem
+# 49er. Muster muessen das Modell nennen, nicht die Produktlinie.
+#
+# Aufbau links → rechts: G61SH (27", 2560) · G93SC (49", 5120) · intern.
+#
+# Die Ketten sind Rueckfallebenen, erste passende Regel gewinnt:
+#   1 → kleiner Samsung, sonst grosser, sonst eingebaut
+#   4 → eingebauter Schirm (nur Slack und WhatsApp), sonst grosser
+#   Rest → grosser Samsung, sonst kleiner, sonst eingebaut
+# Damit bleibt jede Teilmenge der drei Monitore bedienbar; ohne
+# Rueckfallebene kleben Workspaces an einem fehlenden Monitor und sind
+# schlimmstenfalls unerreichbar (AeroSpace-Issue #651).
+1 = ['g61sh', 'g93sc', 'built-in', 'main']
+2 = ['g93sc', 'g61sh', 'built-in', 'main']
+3 = ['g93sc', 'g61sh', 'built-in', 'main']
+4 = ['built-in', 'g93sc', 'g61sh', 'main']
+5 = ['g93sc', 'g61sh', 'built-in', 'main']
+6 = ['g93sc', 'g61sh', 'built-in', 'main']
+7 = ['g93sc', 'g61sh', 'built-in', 'main']
 
 # ═══════════════════════════════════════════════════════════════════════
 # KEYBINDINGS
