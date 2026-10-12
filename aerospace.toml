@@ -147,13 +147,15 @@ on-window-detected = [
   { if = 'test %{app-bundle-id} = com.BZG.CoherenceX6', check-further-callbacks = true, run = 'layout floating' },
   { if = 'test %{app-bundle-id} = com.apple.AppStore', check-further-callbacks = true, run = 'layout floating' },
   { if = 'test %{app-bundle-id} = com.dygmalab.bazecor', check-further-callbacks = true, run = 'layout floating' },
+  { if = 'test %{app-bundle-id} = com.electron.wispr-flow', check-further-callbacks = true, run = 'layout floating' },
   { if = 'test %{app-bundle-id} = com.granola.app', check-further-callbacks = true, run = 'layout floating' },
   { if = 'test %{app-bundle-id} = com.hegenberg.BetterTouchTool', check-further-callbacks = true, run = 'layout floating' },
-  { if = 'test %{app-bundle-id} = com.microsoft.teams2', check-further-callbacks = true, run = 'layout floating' },
   { if = 'test %{app-bundle-id} = com.runningwithcrayons.Alfred-Preferences', check-further-callbacks = true, run = 'layout floating' },
   { if = 'test %{app-bundle-id} = iordv.Droppy', check-further-callbacks = true, run = 'layout floating' },
   { if = 'test %{app-bundle-id} = org.localsend.localsendApp', check-further-callbacks = true, run = 'layout floating' },
   # ╚═ Ende AeroPilot ═══════════════════════
+
+
 
   # Route after synchronous callbacks using the same hardware policy as relayout.
   { check-further-callbacks = true, run = 'exec-and-forget python3 "$HOME/.config/aerospace/env/layout.py" window' },
@@ -171,6 +173,12 @@ on-window-detected = [
   { if = 'test %{app-bundle-id} = com.obsbot.OBSBOT_Center',     run = 'layout floating' },
   { if = 'test %{app-bundle-id} = com.apple.systempreferences',  run = 'layout floating' },
   { if = 'test %{app-bundle-id} = com.noodlesoft.Hazel',         run = 'layout floating' },
+
+  # Kontor, solange es entwickelt wird. Gehört hierher und nicht in den
+  # AeroPilot-Block: Der Entwurf wird mehrmals täglich neu gebaut, und eine
+  # gekachelte Fensterhöhe von 1377 px sagt nichts darüber aus, wie die App
+  # aussieht. Ist sie fertig, kann die Regel nach AeroPilot wandern.
+  { if = 'test %{app-bundle-id} = eu.agenticapps.kontor',        run = 'layout floating' },
 
 
 
@@ -309,20 +317,51 @@ on-window-detected = [
   ctrl-left  = 'workspace --wrap-around prev'
   ctrl-right = 'workspace --wrap-around next'
 
-  # Monitor per NAME, nicht per Richtung. `focus-monitor up` war falsch
-  # herum: AeroSpace rechnet Richtungen in einem Koordinatensystem, in dem
-  # y nach unten wächst. Seit der Odyssey Hauptbildschirm ist, liegt der
-  # LG bei y=1440 und gilt damit intern als "unten" — ctrl-↑ führte
-  # deshalb nach unten. Mit Mustern ist die Richtung eindeutig, egal
-  # welcher Monitor Main ist oder wie die Origins liegen.
-  ctrl-up    = 'focus-monitor lg'
-  ctrl-down  = 'focus-monitor odyssey'
+  # ⚠️ KEINE Monitornamen mehr (12.10.2026). Hier stand `focus-monitor lg`
+  # bzw. `odyssey`. Als der LG abgebaut wurde, zeigte ctrl-↑ auf ein Gerät,
+  # das es nicht mehr gibt: AeroSpace meldet "None of the monitors match
+  # the pattern(s)" und endet trotzdem mit **Exit-Code 0** — die Bindung
+  # scheitert also lautlos. Ein Name ist eine Wette darauf, dass die
+  # Hardware gleich bleibt.
+  #
+  # `next`/`prev` haengt an gar keinem Namen und kann deshalb nie ins Leere
+  # zeigen. Bei zwei Monitoren schalten ↑ und ↓ beide zum jeweils anderen.
+  #
+  # Warum hier nicht `up`/`down`: AeroSpace rechnet Richtungen in einem
+  # Koordinatensystem, in dem y nach unten waechst. Als der Odyssey
+  # Hauptbildschirm wurde, lag der darueber stehende LG intern bei y=1440
+  # und galt damit als "unten" — ctrl-↑ fuehrte nach unten. Auf der
+  # waagerechten Achse gibt es diese Falle nicht, deshalb duerfen die
+  # ctrl-alt-Bindungen unten sehr wohl `left`/`right` benutzen.
+  ctrl-up    = 'focus-monitor --wrap-around prev'
+  ctrl-down  = 'focus-monitor --wrap-around next'
+
+  # ═══ MONITOR WECHSELN · ctrl-alt + Pfeil ═══════════════════════════════
+  # Seit die Monitore NEBENEINANDER stehen (MacBook rechts vom Samsung,
+  # x=0 bzw. x=5120) ist links/rechts die natuerliche Geste dafuer.
+  # ctrl + ←/→ ist schon fuer Workspaces vergeben, ctrl-alt + Pfeil war in
+  # allen 275 erfassten Kuerzeln dieser Maschine frei.
+  #
+  # NICHT Hyper + Pfeil: das schickt in Ghostty \x02h/\x02l und ist die
+  # herdr-Pane-Navigation. Globale Hotkeys greifen vor App-Keybinds, eine
+  # Bindung hier wuerde sie also verschlucken.
+  #
+  # --wrap-around, damit ← und → auch am Rand zuverlaessig auf dem anderen
+  # Monitor landen statt nichts zu tun.
+  ctrl-alt-left  = 'focus-monitor --wrap-around left'
+  ctrl-alt-right = 'focus-monitor --wrap-around right'
 
   # Mit shift: das Fenster mitnehmen statt nur hinschauen.
   ctrl-shift-left  = 'move-node-to-workspace --wrap-around prev --focus-follows-window'
   ctrl-shift-right = 'move-node-to-workspace --wrap-around next --focus-follows-window'
-  ctrl-shift-up    = 'move-node-to-monitor lg --focus-follows-window'
-  ctrl-shift-down  = 'move-node-to-monitor odyssey --focus-follows-window'
+  # Dieselbe Umstellung wie oben: keine Monitornamen, sonst zeigen auch
+  # diese beiden ins Leere, sobald sich die Hardware aendert.
+  ctrl-shift-up    = 'move-node-to-monitor --wrap-around prev --focus-follows-window'
+  ctrl-shift-down  = 'move-node-to-monitor --wrap-around next --focus-follows-window'
+
+  # Fenster auf den Monitor nebenan — Gegenstueck zu ctrl-alt + Pfeil.
+  ctrl-alt-shift-left  = 'move-node-to-monitor --wrap-around left --focus-follows-window'
+  ctrl-alt-shift-right = 'move-node-to-monitor --wrap-around right --focus-follows-window'
 
   # ═══ EBENE 2 · alt + Pfeil = FENSTER IM WORKSPACE ══════════════════════
   # Zwischen den Apps innerhalb eines Workspace springen.
