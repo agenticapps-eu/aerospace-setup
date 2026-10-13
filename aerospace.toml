@@ -173,6 +173,11 @@ on-window-detected = [
   { if = 'test %{app-bundle-id} = com.obsbot.OBSBOT_Center',     run = 'layout floating' },
   { if = 'test %{app-bundle-id} = com.apple.systempreferences',  run = 'layout floating' },
   { if = 'test %{app-bundle-id} = com.noodlesoft.Hazel',         run = 'layout floating' },
+  # Boring Notch ist ein Overlay fuer die Notch, kein Fenster im
+  # eigentlichen Sinn. Am 13.10.2026 aufgenommen, weil es beim
+  # Massen-Zuruecksetzen auf `tiling` mitgekachelt wurde und dann als
+  # normales Fenster im Raster lag.
+  { if = 'test %{app-bundle-id} = theboringteam.boringnotch',    run = 'layout floating' },
 
   # Kontor, solange es entwickelt wird. Gehört hierher und nicht in den
   # AeroPilot-Block: Der Entwurf wird mehrmals täglich neu gebaut, und eine
